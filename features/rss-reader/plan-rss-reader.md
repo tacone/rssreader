@@ -62,10 +62,10 @@ Build the core feed pipeline: fetch → parse → store.
 The main UI.
 
 - [x] Feed detail page (`/feeds/[id]`) with item list
-- [ ] Dashboard layout:
-  - [ ] Sidebar: folder tree (expandable, with unread counts)
-  - [ ] Content pane: infinite-scrolling item list
-  - [ ] Item detail: title, content, metadata, link to original
+- [x] Dashboard layout: three-pane (sidebar + item list + content pane)
+  - [x] Sidebar: feed list with unread counts, add-feed form
+  - [x] Content pane: item list for selected feed
+  - [x] Item detail: title, content, metadata, link to original
 - [ ] Mark as read (click / scroll / keyboard)
   - [x] Per-item toggle on feed detail page
   - [ ] Mark all as read (per feed, per folder)

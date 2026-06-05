@@ -1,3 +1,14 @@
+## 2026-06-06 — Three-Pane Reading Layout
+
+- Dashboard rewritten as three-pane layout (CSS grid):
+  - Left sidebar: feed list with unread counts, add-feed form
+  - Center: item list for selected feed (ordered by publishedAt desc, limited to 200)
+  - Right: content pane for selected item (rendered HTML)
+- Navigation via URL search params: `?feed=<id>&item=<id>`
+- `feeds` load includes unread count per feed (SQL subquery)
+- `toggleRead` / `toggleStar` server actions moved to dashboard
+- Feeds ordered by title (case-insensitive)
+
 ## 2026-06-06 — Feed Detail Page (Reading started)
 
 - `/feeds/[id]` route — shows all items for a feed, ordered by publishedAt desc

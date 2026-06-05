@@ -1,6 +1,8 @@
-## 2026-06-06 — Seed Command + Auth UI (Login/Logout/Dashboard)
+## 2026-06-06 — Seed + Auth UI + Password Tests
 
 - `bun run seeds:create` — standalone script to create a user (scrypt hashing via Node.js crypto, matches better-auth format)
+- Password utility (`src/lib/server/seed/password.ts`) — `hashPassword` + `verifyPassword` extracted for reuse
+- 6 password round-trip tests: hash+verify, wrong password rejection, unique salts, key length, malformed hash, Unicode normalization
 - Login page at `/login`, sign-up page at `/signup`
 - Protected dashboard at `/dashboard` (redirects to `/login` if unauthenticated)
 - Auth client (`$lib/auth-client.ts`) using `better-auth/svelte`

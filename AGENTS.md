@@ -99,3 +99,9 @@ An AI coding framework for Company development. Work in progress.
 
 Keep it simple and pretty. Choose the abstraction level based on the simplicity
 of use.
+
+## Better Auth Credentials
+
+`providerId` must be `'credential'` (not `'email'`) and `accountId` must be the
+user ID (not the email) when creating email/password accounts in the seed
+script. The sign-in handler searches for `providerId === "credential"`.

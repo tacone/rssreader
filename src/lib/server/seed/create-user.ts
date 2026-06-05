@@ -27,9 +27,7 @@ async function main() {
 		.limit(1);
 
 	if (existing.length > 0) {
-		console.log(`User ${email} already exists`);
-		await client.end();
-		return;
+		await db.delete(schema.users).where(eq(schema.users.id, existing[0].id));
 	}
 
 	const now = new Date();
@@ -47,8 +45,8 @@ async function main() {
 
 	await db.insert(schema.accounts).values({
 		id: randomUUID(),
-		accountId: email,
-		providerId: 'email',
+		accountId: userId,
+		providerId: 'credential',
 		userId,
 		password: hashedPassword,
 		createdAt: now,

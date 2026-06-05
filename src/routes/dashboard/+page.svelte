@@ -14,7 +14,7 @@
 
 <div class="mx-auto flex max-w-4xl flex-col gap-4 p-6">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Feeds</h1>
+		<h1 class="text-2xl font-bold">Dashboard</h1>
 		<div class="flex items-center gap-3">
 			{#if $session.data}
 				<span class="text-sm text-gray-600">{$session.data.user.name}</span>

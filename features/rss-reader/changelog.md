@@ -1,3 +1,9 @@
+## 2026-06-06 — Login Fix + Playwright Tests
+
+- **Bugfix**: seed script created accounts with `providerId: 'email'` instead of `'credential'` (and `accountId` as email instead of user ID). Login silently rejected valid credentials despite correct password hash.
+- Form action: login page now uses SvelteKit server action (`auth.api.signInEmail`) instead of client-side proxy — more reliable, works without JS.
+- 5 Playwright e2e tests for login flow: API returns token, UI submits + redirects, invalid creds show error, auth redirect guards, unauth redirect guards.
+
 ## 2026-06-06 — Seed + Auth UI + Password Tests
 
 - `bun run seeds:create` — standalone script to create a user (scrypt hashing via Node.js crypto, matches better-auth format)

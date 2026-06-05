@@ -33,7 +33,7 @@ Define the data model that everything else builds on.
 - [x] Push schema to local PostgreSQL
   - All tables created with FKs, indexes, unique constraints
 - [x] Write schema tests (5 tests passing)
-- [ ] Create seed script (optional, for testing during Phase 2)
+- [x] Create seed script (`bun run seeds:create`)
 
 ---
 

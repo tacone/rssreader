@@ -1,3 +1,12 @@
+## 2026-06-06 — Seed Command + Auth UI (Login/Logout/Dashboard)
+
+- `bun run seeds:create` — standalone script to create a user (scrypt hashing via Node.js crypto, matches better-auth format)
+- Login page at `/login`, sign-up page at `/signup`
+- Protected dashboard at `/dashboard` (redirects to `/login` if unauthenticated)
+- Auth client (`$lib/auth-client.ts`) using `better-auth/svelte`
+- Homepage (`/`) redirects to `/dashboard`
+- Redirect already-authenticated users away from login/signup pages
+
 ## 2026-06-05 — Auth — Sessionless JWT + Plural Auth Tables
 
 - Bearer + JWT plugins for sessionless auth (bearer token, JWKS endpoint)

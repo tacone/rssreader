@@ -6,17 +6,25 @@
 
 <svelte:head><title>Log in</title></svelte:head>
 
-<form method="POST" use:enhance class="mx-auto flex max-w-md flex-col gap-3 p-6">
-	<h1 class="text-2xl font-bold">Log in</h1>
+<div class="hero min-h-screen">
+	<div class="card card-border w-full max-w-sm bg-base-200">
+		<form method="POST" use:enhance class="card-body">
+			<h1 class="card-title">Log in</h1>
 
-	<input name="email" type="email" placeholder="Email" required class="rounded border px-3 py-2" />
-	<input name="password" type="password" placeholder="Password" required class="rounded border px-3 py-2" />
+			<label class="form-control">
+				<input name="email" type="email" placeholder="Email" required class="input input-bordered" />
+			</label>
+			<label class="form-control">
+				<input name="password" type="password" placeholder="Password" required class="input input-bordered" />
+			</label>
 
-	{#if form?.message}
-		<p class="text-sm text-red-600">{form.message}</p>
-	{/if}
+			{#if form?.message}
+				<p class="text-sm text-error">{form.message}</p>
+			{/if}
 
-	<button type="submit" class="rounded-md bg-gray-800 px-4 py-2 text-white">Log in</button>
+			<button type="submit" class="btn btn-primary mt-2">Log in</button>
 
-	<p class="text-sm">New here? <a href="/signup" class="underline">Create an account</a></p>
-</form>
+			<p class="mt-2 text-sm">New here? <a href="/signup" class="link link-hover">Create an account</a></p>
+		</form>
+	</div>
+</div>

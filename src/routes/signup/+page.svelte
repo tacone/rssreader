@@ -26,18 +26,28 @@
 
 <svelte:head><title>Create an account</title></svelte:head>
 
-<form onsubmit={handleSubmit} class="mx-auto flex max-w-md flex-col gap-3 p-6">
-	<h1 class="text-2xl font-bold">Create an account</h1>
+<div class="hero min-h-screen">
+	<div class="card card-border w-full max-w-sm bg-base-200">
+		<form onsubmit={handleSubmit} class="card-body">
+			<h1 class="card-title">Create an account</h1>
 
-	<input bind:value={name} placeholder="Name" required class="rounded border px-3 py-2" />
-	<input bind:value={email} type="email" placeholder="Email" required class="rounded border px-3 py-2" />
-	<input bind:value={password} type="password" placeholder="Password" required class="rounded border px-3 py-2" />
+			<label class="form-control">
+				<input bind:value={name} placeholder="Name" required class="input input-bordered" />
+			</label>
+			<label class="form-control">
+				<input bind:value={email} type="email" placeholder="Email" required class="input input-bordered" />
+			</label>
+			<label class="form-control">
+				<input bind:value={password} type="password" placeholder="Password" required class="input input-bordered" />
+			</label>
 
-	{#if error}<p class="text-sm text-red-600">{error}</p>{/if}
+			{#if error}<p class="text-sm text-error">{error}</p>{/if}
 
-	<button type="submit" disabled={loading} class="rounded-md bg-gray-800 px-4 py-2 text-white disabled:opacity-50">
-		{loading ? 'Creating…' : 'Create account'}
-	</button>
+			<button type="submit" disabled={loading} class="btn btn-primary mt-2">
+				{loading ? 'Creating…' : 'Create account'}
+			</button>
 
-	<p class="text-sm">Already have an account? <a href="/login" class="underline">Log in</a></p>
-</form>
+			<p class="mt-2 text-sm">Already have an account? <a href="/login" class="link link-hover">Log in</a></p>
+		</form>
+	</div>
+</div>

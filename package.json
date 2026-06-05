@@ -55,6 +55,7 @@
 		"vitest-browser-svelte": "^2.1.0"
 	},
 	"dependencies": {
+		"daisyui": "^5.5.20",
 		"dotenv": "^17.4.2",
 		"feedsmith": "^2.9.4"
 	}

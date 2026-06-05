@@ -10,62 +10,60 @@
 <div class="mx-auto flex max-w-4xl flex-col gap-6 p-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Dashboard</h1>
-		<div class="flex items-center gap-3">
-			<a href="/login" class="rounded-md bg-gray-800 px-4 py-2 text-sm text-white">Sign Out</a>
-		</div>
+		<a href="/login" class="btn btn-ghost btn-sm">Sign Out</a>
 	</div>
 
-	<form method="POST" action="?/addFeed" use:enhance class="flex gap-3">
+	<form method="POST" action="?/addFeed" use:enhance class="join w-full">
 		<input
 			bind:value={urlInput}
 			name="url"
 			type="url"
 			placeholder="https://example.com/feed.xml"
 			required
-			class="flex-1 rounded border px-3 py-2"
+			class="input input-bordered join-item flex-1"
 		/>
-		<button type="submit" class="rounded-md bg-gray-800 px-4 py-2 text-sm text-white">Add Feed</button>
+		<button type="submit" class="btn btn-primary join-item">Add Feed</button>
 	</form>
 
 	{#if form?.message}
-		<p class="text-sm text-red-600">{form.message}</p>
+		<p class="text-sm text-error">{form.message}</p>
 	{/if}
 	{#if form?.success}
-		<p class="text-sm text-green-600">{form.success}</p>
+		<div class="alert alert-success"><span>{form.success}</span></div>
 	{/if}
 
 	<div class="flex items-center justify-between">
 		<h2 class="text-lg font-semibold">Feeds ({data.feeds.length})</h2>
 		{#if data.feeds.length > 0}
 			<form method="POST" action="?/refreshAll" use:enhance>
-				<button type="submit" class="rounded-md bg-gray-200 px-3 py-1 text-sm">Refresh All</button>
+				<button type="submit" class="btn btn-outline btn-sm">Refresh All</button>
 			</form>
 		{/if}
 	</div>
 
 	{#if data.feeds.length === 0}
-		<p class="text-gray-500">No feeds yet. Add your first feed to get started.</p>
+		<p class="text-base-content/60">No feeds yet. Add your first feed to get started.</p>
 	{:else}
 		<ul class="flex flex-col gap-2">
 			{#each data.feeds as feed (feed.id)}
-				<li class="flex items-center gap-3 rounded border px-4 py-3">
+				<li class="card card-border card-side items-center bg-base-200 px-4 py-3">
 					{#if feed.icon}
-						<img src={feed.icon} alt="" class="h-6 w-6 rounded" />
+						<img src={feed.icon} alt="" class="size-6 rounded" />
 					{/if}
-					<div class="min-w-0 flex-1">
-						<a href={feed.siteUrl ?? feed.url} class="font-medium truncate block">{feed.title || feed.url}</a>
-						<p class="truncate text-sm text-gray-500">{feed.url}</p>
+					<div class="min-w-0 flex-1 px-3">
+						<a href={feed.siteUrl ?? feed.url} class="link link-hover truncate block font-medium">{feed.title || feed.url}</a>
+						<p class="truncate text-sm text-base-content/60">{feed.url}</p>
 					</div>
-					<span class="text-xs text-gray-400">
+					<span class="text-xs text-base-content/40">
 						{feed.lastFetchedAt ? new Date(feed.lastFetchedAt).toLocaleDateString() : 'never'}
 					</span>
 					<form method="POST" action="?/refreshFeed" use:enhance class="inline">
 						<input type="hidden" name="feedId" value={feed.id} />
-						<button type="submit" class="rounded bg-gray-100 px-2 py-1 text-xs">Refresh</button>
+						<button type="submit" class="btn btn-ghost btn-xs">Refresh</button>
 					</form>
 					<form method="POST" action="?/deleteFeed" use:enhance class="inline">
 						<input type="hidden" name="feedId" value={feed.id} />
-						<button type="submit" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700">Delete</button>
+						<button type="submit" class="btn btn-ghost btn-xs text-error">Delete</button>
 					</form>
 				</li>
 			{/each}

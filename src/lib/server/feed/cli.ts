@@ -7,7 +7,7 @@ import { upsertFeed } from './store';
 async function main() {
 	const url = process.argv[2];
 	if (!url) {
-		console.error('Usage: bun run fetch-feeds <feed-url>');
+		console.error('Usage: bun run feeds:fetch <feed-url>');
 		process.exit(1);
 	}
 

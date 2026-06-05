@@ -16,7 +16,7 @@ import { user } from './auth.schema';
 // --- Feeds ---
 
 export const feeds = pgTable(
-	'feed',
+	'feeds',
 	{
 		id: text('id').primaryKey(),
 		userId: text('user_id')
@@ -34,8 +34,8 @@ export const feeds = pgTable(
 		createdAt: timestamp('created_at').defaultNow().notNull()
 	},
 	(table) => [
-		uniqueIndex('feed_user_url_idx').on(table.userId, table.url),
-		index('feed_user_id_idx').on(table.userId)
+		uniqueIndex('feeds_user_url_idx').on(table.userId, table.url),
+		index('feeds_user_id_idx').on(table.userId)
 	]
 );
 
@@ -47,7 +47,7 @@ export const feedsRelations = relations(feeds, ({ many }) => ({
 // --- Items ---
 
 export const items = pgTable(
-	'item',
+	'items',
 	{
 		id: text('id').primaryKey(),
 		feedId: text('feed_id')
@@ -65,11 +65,11 @@ export const items = pgTable(
 		isStarred: boolean('is_starred').notNull().default(false)
 	},
 	(table) => [
-		uniqueIndex('item_feed_guid_idx').on(table.feedId, table.guid),
-		index('item_feed_id_idx').on(table.feedId),
-		index('item_published_at_idx').on(table.publishedAt),
-		index('item_is_read_idx').on(table.isRead),
-		index('item_is_starred_idx').on(table.isStarred)
+		uniqueIndex('items_feed_guid_idx').on(table.feedId, table.guid),
+		index('items_feed_id_idx').on(table.feedId),
+		index('items_published_at_idx').on(table.publishedAt),
+		index('items_is_read_idx').on(table.isRead),
+		index('items_is_starred_idx').on(table.isStarred)
 	]
 );
 
@@ -84,7 +84,7 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 // --- Folders ---
 
 export const folders = pgTable(
-	'folder',
+	'folders',
 	{
 		id: text('id').primaryKey(),
 		userId: text('user_id')
@@ -95,8 +95,8 @@ export const folders = pgTable(
 		createdAt: timestamp('created_at').defaultNow().notNull()
 	},
 	(table) => [
-		index('folder_parent_id_idx').on(table.parentId),
-		index('folder_user_id_idx').on(table.userId)
+		index('folders_parent_id_idx').on(table.parentId),
+		index('folders_user_id_idx').on(table.userId)
 	]
 );
 
@@ -112,7 +112,7 @@ export const foldersRelations = relations(folders, ({ one, many }) => ({
 // --- Feed-Folder join ---
 
 export const feedFolders = pgTable(
-	'feed_folder',
+	'feed_folders',
 	{
 		feedId: text('feed_id')
 			.notNull()
@@ -140,7 +140,7 @@ export const feedFoldersRelations = relations(feedFolders, ({ one }) => ({
 // --- Item Tags ---
 
 export const itemTags = pgTable(
-	'item_tag',
+	'item_tags',
 	{
 		itemId: text('item_id')
 			.notNull()
@@ -149,7 +149,7 @@ export const itemTags = pgTable(
 	},
 	(table) => ({
 		pk: primaryKey({ columns: [table.itemId, table.tag] }),
-		tagIdx: index('item_tag_tag_idx').on(table.tag)
+		tagIdx: index('item_tags_tag_idx').on(table.tag)
 	})
 );
 

@@ -1,0 +1,14 @@
+# Robot configuration
+# https://github.com/tacone/robot
+
+# Workspace name — used in changelog entries
+workspace_name: rssreader
+
+# Human-readable name for this workstation
+workstation_name: xoxo
+
+# Path to the robot framework
+robot_dir: /home/tacone/Code/robot
+
+# Path to the global skills layer (optional)
+global_dir: 

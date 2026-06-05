@@ -1,3 +1,10 @@
+## 2026-06-06 — DaisyUI + Logout Fix
+
+- Installed daisyUI v5, integrated as Tailwind v4 plugin (`@plugin "daisyui"` in layout.css)
+- Theme toggle (light/dark) with localStorage persistence, sun/moon icons
+- All pages (login, signup, dashboard) rewritten with DaisyUI components (hero, card, btn, input-bordered, form-control, alert, join, link)
+- **Bugfix**: "Sign Out" was a plain `<a>` link — didn't clear session. Changed to form POST with `auth.api.signOut()` server action.
+
 ## 2026-06-06 — Feed Management UI (POC)
 
 - Dashboard load function returns user's feeds (id, url, title, siteUrl, icon, lastFetchedAt, errorCount)

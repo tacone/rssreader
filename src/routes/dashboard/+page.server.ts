@@ -4,6 +4,7 @@ import { db } from '$lib/server/db';
 import { feeds as feedsTable, items as itemsTable } from '$lib/server/db/schema';
 import { fetchFeed } from '$lib/server/feed/fetch';
 import { upsertFeed } from '$lib/server/feed/store';
+import { auth } from '$lib/server/auth';
 import { eq, and, count, sql } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -27,6 +28,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
+	signOut: async ({ request }) => {
+		await auth.api.signOut({ headers: request.headers });
+		redirect(302, '/login');
+	},
+
 	addFeed: async ({ locals, request }) => {
 		if (!locals.user) return fail(401, { message: 'Not authenticated' });
 

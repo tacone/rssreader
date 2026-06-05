@@ -10,7 +10,9 @@
 <div class="mx-auto flex max-w-4xl flex-col gap-6 p-6">
 	<div class="flex items-center justify-between">
 		<h1 class="text-2xl font-bold">Dashboard</h1>
-		<a href="/login" class="btn btn-ghost btn-sm">Sign Out</a>
+		<form method="POST" action="?/signOut" use:enhance>
+			<button type="submit" class="btn btn-ghost btn-sm">Sign Out</button>
+		</form>
 	</div>
 
 	<form method="POST" action="?/addFeed" use:enhance class="join w-full">

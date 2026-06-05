@@ -52,7 +52,7 @@ Build the core feed pipeline: fetch → parse → store.
   - Standalone script (no SvelteKit dependency)
   - Looks up first user for feed association
 - [x] Unit tests for fetch module (5 tests: RSS, Atom, 304, conditional GET, HTTP error)
-- [ ] Manual fetch button in UI: "Refresh" per feed and "Refresh all"
+- [x] Manual fetch button in UI: "Refresh" per feed and "Refresh all"
 - [ ] Basic error handling: failed feeds marked, retry logic
 
 ---

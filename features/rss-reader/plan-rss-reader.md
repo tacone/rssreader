@@ -41,17 +41,19 @@ Define the data model that everything else builds on.
 
 Build the core feed pipeline: fetch → parse → store.
 
-- [ ] Implement feed fetch function:
-  - HTTP GET with conditional GET (ETag / Last-Modified)
-  - Handle redirects, timeouts, errors
-- [ ] Integrate feed parsing library (feedsmith or rss-parser)
-  - Parse RSS 2.0, Atom 1.0, RDF feeds
-  - Normalize to our schema
-- [ ] Store parsed items in DB (upsert by guid)
-- [ ] Create CLI command: `bun run fetch-feeds`
+- [x] Implement feed fetch function (HTTP + feedsmith parsing)
+  - RSS 2.0, Atom 1.0, RDF, JSON Feed support
+  - Conditional GET (ETag / Last-Modified)
+  - 304 Not Modified handling
+- [x] Store parsed items in DB (upsert by feed+guid, onConflictDoNothing)
+  - User-scoped: requires userId for feed association
+  - Updates existing feed metadata, skips duplicate items
+- [x] CLI command: `bun run fetch-feeds <url>`
+  - Standalone script (no SvelteKit dependency)
+  - Looks up first user for feed association
+- [x] Unit tests for fetch module (5 tests: RSS, Atom, 304, conditional GET, HTTP error)
 - [ ] Manual fetch button in UI: "Refresh" per feed and "Refresh all"
 - [ ] Basic error handling: failed feeds marked, retry logic
-- [ ] Unit tests for fetch + parse + upsert pipeline
 
 ---
 

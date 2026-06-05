@@ -12,14 +12,14 @@ small: get basics working, then layer on features and refine with each pass.
 The goal is a blank SvelteKit app running on Bun with Drizzle connected to a
 local PostgreSQL, and Better Auth wired up.
 
-- [ ] `bun create sveltekit` with SSR + TypeScript
-- [ ] Install and configure Drizzle ORM + PostgreSQL driver (Neon)
-- [ ] Define initial Drizzle schema (just `users` and `sessions` tables for auth)
-- [ ] Set up Better Auth (sessionless JWT)
-- [ ] Set up Drizzle Kit migrations
-- [ ] Dev environment: `.env` pointing to local PG, `bun dev` works
-- [ ] Verify: app starts, DB connects, auth middleware works
-- [ ] Setup Vitest, write first sanity test
+- [x] `npx sv create` — SvelteKit minimal + TypeScript + all add-ons
+- [x] Drizzle ORM + PostgreSQL driver (postgres.js) installed
+- [x] Better Auth (email/password) configured
+- [x] Local Docker PostgreSQL connected, `rssreader` DB created
+- [x] Auth schema generated and pushed to DB
+- [x] Dev server verified: `bun dev` starts on :5173
+- [ ] Clean up demo files (task schema, demo routes)
+- [ ] Write first Vitest sanity test
 
 ---
 

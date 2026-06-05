@@ -1,3 +1,11 @@
+## 2026-06-06 — Feed Management UI (POC)
+
+- Dashboard load function returns user's feeds (id, url, title, siteUrl, icon, lastFetchedAt, errorCount)
+- `addFeed` form action: validates URL, checks for duplicates, fetches + stores feed via existing pipeline
+- `deleteFeed`, `refreshFeed`, `refreshAll` form actions on dashboard
+- Dashboard UI: add-feed form with URL input, feed list with icon/title/URL/refresh date, Refresh/Refresh All/Delete buttons
+- Form actions use SvelteKit `use:enhance` for progressive enhancement
+
 ## 2026-06-06 — Login Fix + Playwright Tests
 
 - **Bugfix**: seed script created accounts with `providerId: 'email'` instead of `'credential'` (and `accountId` as email instead of user ID). Login silently rejected valid credentials despite correct password hash.

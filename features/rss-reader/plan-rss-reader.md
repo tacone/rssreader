@@ -27,16 +27,13 @@ local PostgreSQL, and Better Auth wired up.
 
 Define the data model that everything else builds on.
 
-- [ ] Extend Drizzle schema:
-  - `feeds` — url, title, description, site_url, icon, etag, last_modified,
-    last_fetched_at, error_count
-  - `items` — feed_id, guid, url, title, content, summary, author, published_at,
-    is_read, is_starred, fetched_at
-  - `folders` — name, parent_id (nullable, self-referencing for nesting)
-  - `feed_folders` — join table (feed_id, folder_id)
-  - `item_tags` — item_id, tag_name
-- [ ] Run migrations
-- [ ] Create seed script (optional, for testing)
+- [x] Define full Drizzle schema: feeds, items, folders, feed_folders, item_tags
+  - User-scoped: feeds and folders have userId FK
+  - Proper indexes for all query patterns
+- [x] Push schema to local PostgreSQL
+  - All tables created with FKs, indexes, unique constraints
+- [x] Write schema tests (5 tests passing)
+- [ ] Create seed script (optional, for testing during Phase 2)
 
 ---
 

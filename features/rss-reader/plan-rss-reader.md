@@ -1,0 +1,108 @@
+# Plan: RSS Reader
+
+## Approach
+
+Early functionality — each phase produces a working increment. Keep each phase
+small: get basics working, then layer on features and refine with each pass.
+
+---
+
+## Phase 0 — Project scaffold
+
+The goal is a blank SvelteKit app running on Bun with Drizzle connected to a
+local PostgreSQL, and Better Auth wired up.
+
+- [ ] `bun create sveltekit` with SSR + TypeScript
+- [ ] Install and configure Drizzle ORM + PostgreSQL driver (Neon)
+- [ ] Define initial Drizzle schema (just `users` and `sessions` tables for auth)
+- [ ] Set up Better Auth (sessionless JWT)
+- [ ] Set up Drizzle Kit migrations
+- [ ] Dev environment: `.env` pointing to local PG, `bun dev` works
+- [ ] Verify: app starts, DB connects, auth middleware works
+- [ ] Setup Vitest, write first sanity test
+
+---
+
+## Phase 1 — Core database schema
+
+Define the data model that everything else builds on.
+
+- [ ] Extend Drizzle schema:
+  - `feeds` — url, title, description, site_url, icon, etag, last_modified,
+    last_fetched_at, error_count
+  - `items` — feed_id, guid, url, title, content, summary, author, published_at,
+    is_read, is_starred, fetched_at
+  - `folders` — name, parent_id (nullable, self-referencing for nesting)
+  - `feed_folders` — join table (feed_id, folder_id)
+  - `item_tags` — item_id, tag_name
+- [ ] Run migrations
+- [ ] Create seed script (optional, for testing)
+
+---
+
+## Phase 2 — Feed fetching
+
+Build the core feed pipeline: fetch → parse → store.
+
+- [ ] Implement feed fetch function:
+  - HTTP GET with conditional GET (ETag / Last-Modified)
+  - Handle redirects, timeouts, errors
+- [ ] Integrate feed parsing library (feedsmith or rss-parser)
+  - Parse RSS 2.0, Atom 1.0, RDF feeds
+  - Normalize to our schema
+- [ ] Store parsed items in DB (upsert by guid)
+- [ ] Create CLI command: `bun run fetch-feeds`
+- [ ] Manual fetch button in UI: "Refresh" per feed and "Refresh all"
+- [ ] Basic error handling: failed feeds marked, retry logic
+- [ ] Unit tests for fetch + parse + upsert pipeline
+
+---
+
+## Phase 3 — Reading experience
+
+The main UI.
+
+- [ ] Dashboard layout:
+  - Sidebar: folder tree (expandable, with unread counts)
+  - Content pane: infinite-scrolling item list
+  - Item detail: title, content, metadata, link to original
+- [ ] Mark as read (click / scroll / keyboard)
+- [ ] Mark all as read (per feed, per folder)
+- [ ] Star/unstar items
+- [ ] Item-level tagging (add/remove tags per item)
+- [ ] Keyboard shortcuts (j/k navigation, m = mark read, s = star, etc.)
+- [ ] Search bar: full-text search across items
+- [ ] Feed management UI: add feed, remove feed, organize into folders
+- [ ] OPML import
+
+---
+
+## Phase 4 — Polishing
+
+- [ ] Responsive design: verify desktop + mobile layouts
+- [ ] PWA: web manifest, install prompt
+- [ ] Keyboard shortcuts: review and fill gaps
+- [ ] Unit tests for remaining business logic
+- [ ] Playwright e2e: login, add feed, view items, mark read
+
+---
+
+## Phase 5 — Deployment
+
+- [ ] Switch adapter: `@sveltejs/adapter-cloudflare`
+- [ ] Set up Neon production database
+- [ ] Configure environment variables for CF Pages + Neon
+- [ ] Deploy to Cloudflare Pages
+- [ ] CI: run tests on PR, deploy on main
+
+---
+
+## Future (post-v1)
+
+- [ ] Background feed fetching (cron / queue)
+- [ ] Full-text article extraction (Readability / Defuddle)
+- [ ] More keyboard shortcuts
+- [ ] Infinite scroll refinement
+- [ ] Custom design system polish
+- [ ] Better Auth advanced features (OAuth, etc.)
+- [ ] Feed discovery / suggestions

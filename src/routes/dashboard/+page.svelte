@@ -53,7 +53,7 @@
 						<img src={feed.icon} alt="" class="size-6 rounded" />
 					{/if}
 					<div class="min-w-0 flex-1 px-3">
-						<a href={feed.siteUrl ?? feed.url} class="link link-hover truncate block font-medium">{feed.title || feed.url}</a>
+						<a href="/feeds/{feed.id}" class="link link-hover truncate block font-medium">{feed.title || feed.url}</a>
 						<p class="truncate text-sm text-base-content/60">{feed.url}</p>
 					</div>
 					<span class="text-xs text-base-content/40">

@@ -1,3 +1,11 @@
+## 2026-06-06 — Feed Detail Page (Reading started)
+
+- `/feeds/[id]` route — shows all items for a feed, ordered by publishedAt desc
+- Each feed card on dashboard links to its feed detail page
+- Inline item expand: click title to reveal full content (HTML rendered)
+- `toggleRead` / `toggleStar` server actions on feed detail page
+- Read/unread badge, star toggle (★/☆) per item
+
 ## 2026-06-06 — DaisyUI + Logout Fix
 
 - Installed daisyUI v5, integrated as Tailwind v4 plugin (`@plugin "daisyui"` in layout.css)

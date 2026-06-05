@@ -11,7 +11,7 @@ import {
 import { relations } from 'drizzle-orm';
 
 export * from './auth.schema';
-import { user } from './auth.schema';
+import { users } from './auth.schema';
 
 // --- Feeds ---
 
@@ -21,7 +21,7 @@ export const feeds = pgTable(
 		id: text('id').primaryKey(),
 		userId: text('user_id')
 			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
+			.references(() => users.id, { onDelete: 'cascade' }),
 		url: text('url').notNull(),
 		title: text('title'),
 		description: text('description'),
@@ -89,7 +89,7 @@ export const folders = pgTable(
 		id: text('id').primaryKey(),
 		userId: text('user_id')
 			.notNull()
-			.references(() => user.id, { onDelete: 'cascade' }),
+			.references(() => users.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
 		parentId: text('parent_id'),
 		createdAt: timestamp('created_at').defaultNow().notNull()

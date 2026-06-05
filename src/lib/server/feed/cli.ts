@@ -25,7 +25,7 @@ async function main() {
 		const result = await fetchFeed(url);
 		console.log(`  → ${result.items.length} items found`);
 
-		const users = await db.select({ id: schema.user.id }).from(schema.user).limit(1);
+		const users = await db.select({ id: schema.users.id }).from(schema.users).limit(1);
 		if (users.length === 0) {
 			console.error('No users found. Create a user first via the web UI.');
 			process.exit(1);

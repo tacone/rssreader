@@ -11,9 +11,9 @@ describe('schema', () => {
 	});
 
 	it('should export auth tables', () => {
-		expect(schema.user).toBeDefined();
-		expect(schema.session).toBeDefined();
-		expect(schema.account).toBeDefined();
+		expect(schema.users).toBeDefined();
+		expect(schema.sessions).toBeDefined();
+		expect(schema.accounts).toBeDefined();
 	});
 
 	it('feed should have expected columns', () => {

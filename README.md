@@ -52,12 +52,14 @@ bun run dev
 
 Open [localhost:5173](http://localhost:5173) and log in with `admin@test.com` / `admin123`.
 
-### Adding Feeds
+### Adding and Refreshing Feeds
 
 Add feeds from the management page (`/dashboard`) or via CLI:
 
 ```sh
 bun run feeds:fetch https://example.com/feed.xml
+bun run feeds:refresh-all <email>        # Refresh all feeds for a user
+bun run feeds:refresh-all --force <email> # Ignore etag/lastModified
 ```
 
 ### Scripts

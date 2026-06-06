@@ -1,3 +1,8 @@
+## 2026-06-06 — Theme no-flash + Title link
+
+- Theme initialization moved from `+layout.svelte` `onMount` to blocking inline `<script>` in `app.html` — no flash of wrong theme on load
+- "RSS Reader" title in reading-view header now links to `/dashboard`
+
 ## 2026-06-06 — Slug-based Reading URLs + Routing Refactor
 
 - Removed `/feeds/[id]` route (replaced by `/dashboard/r/`)

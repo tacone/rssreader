@@ -1,6 +1,8 @@
 ## 2026-06-06 — Fix Atom feeds with string content (GitLab blog)
 
 - fix: `extractText()` helper handles feedsmith's `<content>`/`<summary>` returned as bare string (not `{ value }`) — GitLab, GitHub, and other Atom feeds now show article content
+- test: `extractText` unit tests (string, object, undefined, empty object)
+- test: Atom string content (GitLab-style) and object content feed parsing tests
 - Existing GitLab items need re-fetch: `bun run feeds:refresh-all --force <email>`
 
 ## 2026-06-06 — Fix #10: graceful favicon fallback + Fix #6: theme icon sync

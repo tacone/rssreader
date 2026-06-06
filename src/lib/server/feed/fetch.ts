@@ -24,7 +24,7 @@ export type FetchResult = {
 	lastModified?: string;
 };
 
-function extractText(val: Record<string, unknown> | string | undefined): string | undefined {
+export function extractText(val: Record<string, unknown> | string | undefined): string | undefined {
 	if (typeof val === 'string') return val;
 	return val?.value as string | undefined;
 }

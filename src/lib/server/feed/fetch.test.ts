@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { extractText } from './fetch';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -31,7 +32,7 @@ const sampleRss = `<?xml version="1.0" encoding="UTF-8"?>
   </channel>
 </rss>`;
 
-// Sample Atom 1.0 feed
+// Sample Atom 1.0 feed (summary as plain text)
 const sampleAtom = `<?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Atom Feed</title>
@@ -46,6 +47,59 @@ const sampleAtom = `<?xml version="1.0" encoding="UTF-8"?>
     <author><name>Jane Doe</name></author>
   </entry>
 </feed>`;
+
+// Atom feed with <content type="html"> as string (GitLab-style)
+const sampleAtomStringContent = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>GitLab Blog</title>
+  <link href="https://gitlab.com"/>
+  <entry>
+    <id>gl-1</id>
+    <title>Post with content</title>
+    <link href="https://gitlab.com/blog/1"/>
+    <content type="html"><![CDATA[<p>Hello from GitLab</p>]]></content>
+    <published>2024-01-01T00:00:00Z</published>
+  </entry>
+  <entry>
+    <id>gl-2</id>
+    <title>Post without content</title>
+    <link href="https://gitlab.com/blog/2"/>
+    <published>2024-01-01T00:00:00Z</published>
+  </entry>
+</feed>`;
+
+// Atom feed with both <content> and <summary> as object format
+const sampleAtomObjectContent = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Object Format Feed</title>
+  <link href="https://example.com"/>
+  <entry>
+    <id>obj-1</id>
+    <title>Object entry</title>
+    <link href="https://example.com/1"/>
+    <content type="html" xml:base="https://example.com"><![CDATA[<p>Object content</p>]]></content>
+    <summary type="text">Object summary</summary>
+    <published>2024-01-01T00:00:00Z</published>
+  </entry>
+</feed>`;
+
+describe('extractText', () => {
+	it('should return string as-is', () => {
+		expect(extractText('hello')).toBe('hello');
+	});
+
+	it('should extract .value from object', () => {
+		expect(extractText({ value: 'text from object' })).toBe('text from object');
+	});
+
+	it('should return undefined for missing field', () => {
+		expect(extractText({})).toBeUndefined();
+	});
+
+	it('should return undefined for undefined', () => {
+		expect(extractText(undefined)).toBeUndefined();
+	});
+});
 
 describe('fetchFeed', () => {
 	it('should parse RSS 2.0 feed', async () => {
@@ -88,6 +142,42 @@ describe('fetchFeed', () => {
 		expect(result.items[0].guid).toBe('atom-1');
 		expect(result.items[0].title).toBe('Atom Entry');
 		expect(result.items[0].author).toBe('Jane Doe');
+	});
+
+	it('should parse Atom with <content> as string (GitLab-style)', async () => {
+		mockFetch.mockResolvedValue({
+			ok: true,
+			status: 200,
+			text: () => Promise.resolve(sampleAtomStringContent),
+			headers: new Map()
+		});
+
+		const { fetchFeed } = await import('./fetch');
+		const result = await fetchFeed('https://gitlab.com/atom.xml');
+
+		expect(result.items).toHaveLength(2);
+		expect(result.items[0].title).toBe('Post with content');
+		expect(result.items[0].rawContent).toBe('<p>Hello from GitLab</p>');
+		expect(result.items[1].title).toBe('Post without content');
+		expect(result.items[1].rawContent).toBeUndefined();
+		expect(result.items[1].content).toBeUndefined();
+	});
+
+	it('should parse Atom with <content> and <summary> as object format', async () => {
+		mockFetch.mockResolvedValue({
+			ok: true,
+			status: 200,
+			text: () => Promise.resolve(sampleAtomObjectContent),
+			headers: new Map()
+		});
+
+		const { fetchFeed } = await import('./fetch');
+		const result = await fetchFeed('https://example.com/atom.xml');
+
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0].title).toBe('Object entry');
+		expect(result.items[0].rawContent).toBe('<p>Object content</p>');
+		expect(result.items[0].rawSummary).toBe('Object summary');
 	});
 
 	it('should return empty on 304 Not Modified', async () => {

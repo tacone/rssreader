@@ -5,6 +5,8 @@ import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type * as schema from '../db/schema';
 import type { FetchResult } from './fetch';
 import { generateSlug } from '../slug';
+import { htmlToText } from '../html';
+import { sanitizeHtml } from '../sanitize';
 
 export type DB = PostgresJsDatabase<typeof schema>;
 
@@ -59,18 +61,38 @@ export async function upsertFeed(
 
 	const newItems = fetchResult.items.filter((item) => item.guid);
 	for (const item of newItems) {
+		const rawTitle = item.rawTitle?.trim() ?? null;
+		const rawSummary = item.rawSummary?.trim() ?? null;
+		const rawContent = item.rawContent?.trim() ?? null;
 		const itemId = randomUUID();
+
+		const title = rawTitle ? htmlToText(rawTitle) : null;
+
+		let summary: string | null;
+		if (rawSummary) {
+			summary = htmlToText(rawSummary);
+		} else if (rawContent) {
+			summary = htmlToText(rawContent).slice(0, 255);
+		} else {
+			summary = null;
+		}
+
+		const content = rawContent ? sanitizeHtml(rawContent) : null;
+
 		await db
 			.insert(itemsTable)
 			.values({
 				id: itemId,
-				slug: generateSlug(itemId, item.title, item.url),
+				slug: generateSlug(itemId, title ?? item.url),
 				feedId,
 				guid: item.guid,
 				url: item.url,
-				title: item.title,
-				content: item.content,
-				summary: item.summary,
+				title,
+				rawTitle,
+				rawSummary,
+				content,
+				rawContent,
+				summary,
 				author: item.author,
 				publishedAt: item.publishedAt
 			})

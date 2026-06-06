@@ -16,6 +16,9 @@ export type FetchResult = {
 		summary?: string;
 		author?: string;
 		publishedAt?: Date;
+		rawTitle?: string;
+		rawSummary?: string;
+		rawContent?: string;
 	}>;
 	etag?: string;
 	lastModified?: string;
@@ -63,12 +66,16 @@ export async function fetchFeed(
 			const guid = item.guid as Record<string, unknown> | undefined;
 			const content = item.content as Record<string, unknown> | undefined;
 			const authors = item.authors as Array<string | Record<string, string>> | undefined;
+			const rawContent = (content?.encoded as string) ?? (item.description as string | undefined);
 			items.push({
 				guid: (guid?.value as string) ?? (item.link as string) ?? '',
 				url: item.link as string | undefined,
 				title: item.title as string | undefined,
-				content: (content?.encoded as string) ?? (item.description as string | undefined),
+				content: rawContent,
 				summary: item.description as string | undefined,
+				rawTitle: item.title as string | undefined,
+				rawSummary: item.description as string | undefined,
+				rawContent,
 				author: typeof authors?.[0] === 'string' ? authors[0] : (authors?.[0] as Record<string, string> | undefined)?.name,
 				publishedAt: item.pubDate ? new Date(item.pubDate as string) : undefined
 			});
@@ -91,12 +98,16 @@ export async function fetchFeed(
 			const entrySummary = entry.summary as Record<string, unknown> | undefined;
 			const entryLinks = entry.links as Array<Record<string, unknown>> | undefined;
 			const authors = entry.authors as Array<Record<string, unknown>> | undefined;
+			const rawContent = (entryContent?.value as string | undefined) ?? (entrySummary?.value as string | undefined);
 			items.push({
 				guid: entry.id as string,
 				url: entryLinks?.[0]?.href as string | undefined,
 				title: typeof entryTitle === 'string' ? entryTitle : (entryTitle?.value as string | undefined),
-				content: (entryContent?.value as string | undefined) ?? (entrySummary?.value as string | undefined),
+				content: rawContent,
 				summary: entrySummary?.value as string | undefined,
+				rawTitle: typeof entryTitle === 'string' ? entryTitle : (entryTitle?.value as string | undefined),
+				rawContent,
+				rawSummary: entrySummary?.value as string | undefined,
 				author: authors?.[0]?.name as string | undefined,
 				publishedAt: entry.published ? new Date(entry.published as string) : undefined
 			});
@@ -112,12 +123,16 @@ export async function fetchFeed(
 		const rawItems = (f.items ?? []) as Array<Record<string, unknown>>;
 		for (const item of rawItems) {
 			const dc = item.dc as Record<string, unknown> | undefined;
+			const rawContent = item.description as string | undefined;
 			items.push({
 				guid: (item.link as string) ?? '',
 				url: item.link as string | undefined,
 				title: item.title as string | undefined,
-				content: item.description as string | undefined,
-				summary: item.description as string | undefined,
+				content: rawContent,
+				summary: rawContent,
+				rawTitle: item.title as string | undefined,
+				rawContent,
+				rawSummary: rawContent,
 				publishedAt: dc?.date ? new Date(dc.date as string) : undefined
 			});
 		}
@@ -131,12 +146,16 @@ export async function fetchFeed(
 		const rawItems = (f.items ?? []) as Array<Record<string, unknown>>;
 		for (const item of rawItems) {
 			const authors = item.authors as Array<Record<string, unknown>> | undefined;
+			const rawContent = (item.content_html as string) ?? (item.content_text as string | undefined);
 			items.push({
 				guid: item.id as string ?? '',
 				url: item.url as string | undefined,
 				title: item.title as string | undefined,
-				content: (item.content_html as string) ?? (item.content_text as string | undefined),
+				content: rawContent,
 				summary: item.summary as string | undefined,
+				rawTitle: item.title as string | undefined,
+				rawContent,
+				rawSummary: item.summary as string | undefined,
 				author: authors?.[0]?.name as string | undefined,
 				publishedAt: item.date_published ? new Date(item.date_published as string) : undefined
 			});

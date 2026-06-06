@@ -1,3 +1,12 @@
+## 2026-06-06 — Raw content columns + DOMPurify sanitization
+
+- Added `raw_title`, `raw_summary`, `raw_content` columns to `items` table
+- `title` and `summary` now computed from raw fields at fetch time (strip tags + decode entities via `he`)
+- `content` sanitized with DOMPurify + jsdom (Miniflux-style strict whitelist, ~40 tags)
+- `htmlToText()` utility for stripping tags + converting HTML entities
+- 30 unit tests for sanitization (XSS vectors, real feed HTML)
+- Fixed `he` import compatibility (CJS default import for Vite SSR)
+
 ## 2026-06-06 — Theme no-flash + Title link
 
 - Theme initialization moved from `+layout.svelte` `onMount` to blocking inline `<script>` in `app.html` — no flash of wrong theme on load

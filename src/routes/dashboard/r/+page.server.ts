@@ -85,17 +85,30 @@ export const actions: Actions = {
 			.from(feedsTable)
 			.where(eq(feedsTable.userId, locals.user.id));
 
+		console.log('[refreshAll] Refreshing', userFeeds.length, 'feeds');
+
 		let refreshed = 0;
 		let errors = 0;
 
 		for (const feed of userFeeds) {
 			try {
 				const result = await fetchFeed(feed.url, { etag: feed.etag ?? undefined, lastModified: feed.lastModified ?? undefined });
-				if (result.items.length > 0 || result.meta.title) await upsertFeed(db, locals.user.id, feed.url, result);
+				const itemCount = result.items.length;
+				if (itemCount > 0 || result.meta.title) {
+					const { newItemCount } = await upsertFeed(db, locals.user.id, feed.url, result);
+					console.log('[refreshAll] OK:', feed.title || feed.url, `(${newItemCount} new items)`);
+				} else {
+					console.log('[refreshAll] 304:', feed.title || feed.url, feed.lastModified);
+				}
 				refreshed++;
-			} catch { errors++; }
+			} catch (e) {
+				console.error('[refreshAll] ERR:', feed.title || feed.url, e instanceof Error ? e.message : e);
+				errors++;
+			}
 		}
 
-		return { success: `Refreshed ${refreshed} feed(s)${errors ? ` (${errors} failed)` : ''}` };
+		const msg = `Refreshed ${refreshed} feed(s)${errors ? ` (${errors} failed)` : ''}`;
+		console.log('[refreshAll] Done:', msg);
+		return { success: msg };
 	}
 };

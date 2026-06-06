@@ -29,3 +29,127 @@
 	max-width: 100%;
 	height: auto;
 }
+
+.feed-content {
+	line-height: 1.7;
+	color: oklch(var(--bc));
+}
+
+.feed-content p,
+.feed-content ul,
+.feed-content ol,
+.feed-content blockquote,
+.feed-content pre,
+.feed-content table,
+.feed-content hr,
+.feed-content details {
+	margin-bottom: 1em;
+}
+
+.feed-content h1 { font-size: 1.75em; font-weight: 700; margin: 1em 0 0.5em; }
+.feed-content h2 { font-size: 1.4em; font-weight: 700; margin: 1.2em 0 0.5em; }
+.feed-content h3 { font-size: 1.15em; font-weight: 600; margin: 1.2em 0 0.5em; }
+.feed-content h4,
+.feed-content h5,
+.feed-content h6 { font-weight: 600; margin: 1em 0 0.5em; }
+
+.feed-content a {
+	color: oklch(var(--p));
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.feed-content a:hover {
+	opacity: 0.8;
+}
+
+.feed-content ul,
+.feed-content ol {
+	padding-left: 1.5em;
+}
+
+.feed-content li {
+	margin-bottom: 0.25em;
+}
+
+.feed-content blockquote {
+	border-left: 3px solid oklch(var(--nc));
+	padding-left: 1em;
+	color: oklch(var(--nc));
+}
+
+.feed-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 0.5rem;
+	margin: 1em 0;
+}
+
+.feed-content figure {
+	margin: 1em 0;
+}
+
+.feed-content figcaption {
+	font-size: 0.875em;
+	color: oklch(var(--nc));
+	text-align: center;
+	margin-top: 0.5em;
+}
+
+.feed-content pre {
+	background: oklch(var(--b2));
+	border-radius: 0.5rem;
+	padding: 1em;
+	overflow-x: auto;
+	font-size: 0.875em;
+	line-height: 1.5;
+}
+
+.feed-content code {
+	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	font-size: 0.875em;
+	background: oklch(var(--b2));
+	padding: 0.15em 0.35em;
+	border-radius: 0.25rem;
+}
+
+.feed-content pre code {
+	background: none;
+	padding: 0;
+	border-radius: 0;
+}
+
+.feed-content hr {
+	border: none;
+	border-top: 1px solid oklch(var(--nc) / 0.3);
+	margin: 1.5em 0;
+}
+
+.feed-content table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+
+.feed-content th,
+.feed-content td {
+	border: 1px solid oklch(var(--nc) / 0.2);
+	padding: 0.5em 0.75em;
+	text-align: left;
+}
+
+.feed-content th {
+	background: oklch(var(--b2));
+	font-weight: 600;
+}
+
+.feed-content details {
+	background: oklch(var(--b2));
+	border-radius: 0.5rem;
+	padding: 0.5em 1em;
+}
+
+.feed-content summary {
+	font-weight: 600;
+	cursor: pointer;
+}

@@ -1,3 +1,9 @@
+## 2026-06-06 — Feed content typography
+
+- Feed content now styled with `.feed-content` class: proper heading sizes, link colors, blockquote border, code/pre blocks with monospace, tables, horizontal rules, responsive images, figure/figcaption, details/summary
+- Uses DaisyUI theme tokens (`--bc`, `--p`, `--nc`, `--b2`) for dark mode compatibility
+- Replaces `prose` class (requires `@tailwindcss/typography`, not v4-compatible)
+
 ## 2026-06-06 — onConflictDoUpdate + feeds:refresh-all --force
 
 - Items now update on re-fetch (`onConflictDoUpdate` instead of `onConflictDoNothing`) — picks up sanitizer changes, retains read/star state

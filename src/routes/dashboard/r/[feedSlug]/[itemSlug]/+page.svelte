@@ -45,7 +45,7 @@
 		</button>
 	</form>
 
-	<div class="prose prose-sm max-w-none">
+	<div class="feed-content max-w-none">
 		{@html data.item.content ?? data.item.summary ?? '<p class="text-base-content/40">No content</p>'}
 	</div>
 </article>

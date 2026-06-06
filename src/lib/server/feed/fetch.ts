@@ -24,6 +24,11 @@ export type FetchResult = {
 	lastModified?: string;
 };
 
+function extractText(val: Record<string, unknown> | string | undefined): string | undefined {
+	if (typeof val === 'string') return val;
+	return val?.value as string | undefined;
+}
+
 export async function fetchFeed(
 	url: string,
 	options?: { etag?: string; lastModified?: string }
@@ -94,20 +99,21 @@ export async function fetchFeed(
 		const entries = (f.entries ?? []) as Array<Record<string, unknown>>;
 		for (const entry of entries) {
 			const entryTitle = entry.title as Record<string, unknown> | string | undefined;
-			const entryContent = entry.content as Record<string, unknown> | undefined;
-			const entrySummary = entry.summary as Record<string, unknown> | undefined;
+			const entryContent = entry.content as Record<string, unknown> | string | undefined;
+			const entrySummary = entry.summary as Record<string, unknown> | string | undefined;
 			const entryLinks = entry.links as Array<Record<string, unknown>> | undefined;
 			const authors = entry.authors as Array<Record<string, unknown>> | undefined;
-			const rawContent = (entryContent?.value as string | undefined) ?? (entrySummary?.value as string | undefined);
+			const rawContent = extractText(entryContent) ?? extractText(entrySummary);
+			const title = extractText(entryTitle);
 			items.push({
 				guid: entry.id as string,
 				url: entryLinks?.[0]?.href as string | undefined,
-				title: typeof entryTitle === 'string' ? entryTitle : (entryTitle?.value as string | undefined),
+				title,
 				content: rawContent,
-				summary: entrySummary?.value as string | undefined,
-				rawTitle: typeof entryTitle === 'string' ? entryTitle : (entryTitle?.value as string | undefined),
+				summary: extractText(entrySummary),
+				rawTitle: title,
 				rawContent,
-				rawSummary: entrySummary?.value as string | undefined,
+				rawSummary: extractText(entrySummary),
 				author: authors?.[0]?.name as string | undefined,
 				publishedAt: entry.published ? new Date(entry.published as string) : undefined
 			});

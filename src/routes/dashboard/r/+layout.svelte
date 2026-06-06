@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -14,7 +15,7 @@
 	} = $props();
 
 	let urlInput = $state('');
-	let theme = $state('light');
+	let theme = $state(browser && localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
 
 	function toggleTheme() {
 		theme = theme === 'light' ? 'dark' : 'light';

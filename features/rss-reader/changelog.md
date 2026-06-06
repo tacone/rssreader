@@ -1,3 +1,8 @@
+## 2026-06-06 — Fix #6: theme toggle icon out of sync
+
+- fix: initialize `theme` state from `localStorage` (via `browser` guard) instead of hardcoding `'light'`
+- Icon now shows the correct sun/moon SVG on page load, matching the actual `data-theme` attribute
+
 ## 2026-06-06 — Caddy: immutable caching for Vite versioned assets
 
 - feat: add `@versioned` Caddy matcher — `?v=/`?t=` query params on `/node_modules/*`, `/.svelte-kit/*`, `/src/*` → `Cache-Control: public, max-age=31536000, immutable`

@@ -1,3 +1,8 @@
+## 2026-06-06 — Caddy: immutable caching for Vite versioned assets
+
+- feat: add `@versioned` Caddy matcher — `?v=/`?t=` query params on `/node_modules/*`, `/.svelte-kit/*`, `/src/*` → `Cache-Control: public, max-age=31536000, immutable`
+- Prevents 304 round-trips for Vite/SvelteKit cache-busted files in dev mode
+
 ## 2026-06-06 — Bun adapter, portless, preload tap, JWKS fix
 
 - chore: switch from @sveltejs/adapter-auto to svelte-adapter-bun (Bun-native adapter recommended by official docs; reverts Cloudflare deployment plan)

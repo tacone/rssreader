@@ -5,8 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"// dev:portless is broken": "See https://github.com/vercel-labs/portless/pull/303",
-		"dev:portless": "portless rssreader bun run dev --clearScreen false",
+		"dev:caddy": "caddy start --config Caddyfile --watch && trap 'caddy stop' EXIT && vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

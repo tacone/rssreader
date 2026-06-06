@@ -16,7 +16,7 @@ Built from scratch to be tiny, fast, and pleasant to use daily.
 | **UI**           | Tailwind CSS v4 + DaisyUI v5                          |
 | **Feed parsing** | Feedsmith (RSS 2.0, Atom 1.0, RDF, JSON Feed)         |
 | **Tests**        | Vitest (unit) + Playwright (e2e)                      |
-| **Deployment**   | Cloudflare Pages                                      |
+| **Deployment**   | Bun (via svelte-adapter-bun)                          |
 
 ## Getting Started
 
@@ -24,6 +24,7 @@ Built from scratch to be tiny, fast, and pleasant to use daily.
 
 - **Bun** (runtime)
 - **Docker** (local PostgreSQL)
+- **Caddy** (optional, for HTTPS/HTTP2 on localhost)
 
 ### Setup
 
@@ -45,12 +46,34 @@ script -q -c "bun run db:push" /dev/null <<< "y"
 
 # Create a test user
 bun run seeds:create
-
-# Start the dev server
-bun run dev
 ```
 
-Open [localhost:5173](http://localhost:5173) and log in with `admin@test.com` / `admin123`.
+### Running
+
+```sh
+# HTTP on localhost:5173
+bun run dev
+
+# HTTPS on rssreader.localhost (requires Caddy, see below)
+bun run dev:caddy
+```
+
+Open [localhost:5173](http://localhost:5173) or [rssreader.localhost](https://rssreader.localhost) and log in with `admin@test.com` / `admin123`.
+
+### Caddy (Optional)
+
+For HTTPS and HTTP/2 multiplexing during development:
+
+```sh
+# Install Caddy (Arch)
+sudo pacman -S caddy
+
+# Allow Caddy to bind port 443 without root
+sudo setcap cap_net_bind_service=+ep /usr/bin/caddy
+
+# Start dev server with Caddy reverse proxy
+bun run dev:caddy
+```
 
 ### Adding and Refreshing Feeds
 
@@ -66,7 +89,8 @@ bun run feeds:refresh-all --force <email> # Ignore etag/lastModified
 
 | Script                 | Purpose                   |
 | ---------------------- | ------------------------- |
-| `bun run dev`          | Start dev server          |
+| `bun run dev`          | Start dev server (HTTP)   |
+| `bun run dev:caddy`    | Start dev server (HTTPS with Caddy) |
 | `bun run build`        | Production build          |
 | `bun run test:unit`    | Unit tests (Vitest)       |
 | `bun run test:e2e`     | E2E tests (Playwright)    |

@@ -91,11 +91,12 @@
 }
 
 .feed-content li::marker {
-	font-size: 1.25em;
+	color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
 }
 
 .feed-content li {
 	line-height: 1.3;
+	padding-left: 0.3em;
 }
 
 .feed-content li > ul,
@@ -105,12 +106,13 @@
 }
 
 .feed-content ul > li::marker {
-	color: var(--color-base-content);
+	/* color: var(--color-base-content); */
+	font-size: 1.25em;
+
 }
 
 .feed-content ol > li::marker {
-	color: var(--color-base-content);
-	font-weight: 400;
+	font-weight: 600;
 }
 
 .feed-content blockquote {

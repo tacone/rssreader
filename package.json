@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"dev:portless": "portless rssreader bun run dev",
+		"// dev:portless is broken": "See https://github.com/vercel-labs/portless/pull/303",
+		"dev:portless": "portless rssreader bun run dev --clearScreen false",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -52,6 +53,7 @@
 		"prettier-plugin-svelte": "^3.5.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"svelte": "^5.55.2",
+		"svelte-adapter-bun": "^1.0.1",
 		"svelte-check": "^4.4.6",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^6.0.2",

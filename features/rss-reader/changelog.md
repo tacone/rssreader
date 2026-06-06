@@ -1,8 +1,25 @@
-## 2026-06-06 — Fix #7: switch cookieCache from JWT to JWE
+## 2026-06-06 — Bun adapter, portless, preload tap, JWKS fix
 
-- Changed `cookieCache.strategy` from `'jwt'` to `'jwe'` — session cookie is now symmetrically encrypted (A256CBC-HS512) instead of using asymmetric JWT signatures
-- Eliminates the `select from "jwks"` query on every request: cookie verification uses the app secret, not asymmetric keys
-- JWT plugin stays for API token generation — only the cookie cache strategy changed
+- chore: switch from @sveltejs/adapter-auto to svelte-adapter-bun (Bun-native adapter recommended by official docs; reverts Cloudflare deployment plan)
+- feat: add portless dev dependency + `dev:portless` script for HTTPS/HTTP2 on localhost
+- feat: switch link preload from hover to mousedown (`data-sveltekit-preload-data="tap"`)
+- docs: update .env.example with ORIGIN comments
+
+### Fix #7 — JWKS query on every request
+
+- Changed `cookieCache.strategy` from `'jwt'` to `'jwe'` (A256CBC-HS512 symmetric encryption) — JWKS switch alone didn't eliminate the query
+- Added `jwt({ disableSettingJwtHeader: true })` — the JWT plugin was hooking into `getSession` to generate a `set-auth-jwt` header, which requires fetching the latest JWKS key for signing. Disabling this prevents that.
+- JWT plugin stays for API token generation via `/api/auth/token`
+
+### Preload tap
+
+- Changed `data-sveltekit-preload-data` from `"hover"` to `"tap"` — preloading starts on mousedown/touchstart instead of hover
+
+### Portless
+
+- Added `portless` dev dependency
+- Added `dev:portless` script — `portless rssreader bun run dev`
+- Updated `.env` `ORIGIN` to `https://rssreader.localhost`
 
 ## 2026-06-06 — Fix DaisyUI v5 variable names + light mode
 

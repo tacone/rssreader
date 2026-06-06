@@ -8,3 +8,8 @@
 - #6 - fix: dark/light mode icon gets out of sync (use localstorage svelte store)
 - #7 - #important investigate why every request is performing `Query: select "id", "public_key", "private_key", "created_at", "expires_at" from "jwks" limit $1 -- params: [100]` even if the auth is supposed to sessionless.
 - #8 - #important investigate feed item sandboxing (should be in a iframe or something similar) and html sanitization (investigate existing software)
+- #9 - investigate double initial image on code horror feed
+- #10 - feed list should handle gracefully missing/unloadable favicons
+- #11 - investigate existing software: how to they handle inline images?
+- #12 - `<img>` inside `figure` doesn't look right, there's a black background around it
+- #13 - properly style '<figcaption>`

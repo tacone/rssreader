@@ -14,6 +14,7 @@ export const actions: Actions = {
 	},
 
 	addFeed: async ({ locals, request }) => {
+		console.log('\n>>> addFeed action START');
 		if (!locals.user) return fail(401, { message: 'Not authenticated' });
 
 		const data = await request.formData();
@@ -34,7 +35,7 @@ export const actions: Actions = {
 		try { fetchResult = await fetchFeed(url); }
 		catch (e) {
 			const msg = e instanceof Error ? e.message : 'Unknown error';
-			console.error(`[addFeed] ${url} — ${msg}`, e);
+			console.log(`[addFeed] ERROR: ${url} — ${msg}`);
 			return fail(422, { message: msg });
 		}
 

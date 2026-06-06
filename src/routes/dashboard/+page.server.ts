@@ -53,7 +53,11 @@ export const actions: Actions = {
 
 		let fetchResult;
 		try { fetchResult = await fetchFeed(url); }
-		catch (e) { return fail(422, { message: e instanceof Error ? e.message : 'Failed to fetch feed' }); }
+		catch (e) {
+			const msg = e instanceof Error ? e.message : 'Unknown error';
+			console.log(`[addFeed] ERROR: ${url} — ${msg}`);
+			return fail(422, { message: msg });
+		}
 
 		if (fetchResult.items.length === 0 && !fetchResult.meta.title)
 			return fail(422, { message: 'No feed found at this URL' });
@@ -83,7 +87,9 @@ export const actions: Actions = {
 			if (result.items.length > 0 || result.meta.title) await upsertFeed(db, locals.user.id, feed.url, result);
 			return { success: 'Feed refreshed' };
 		} catch (e) {
-			return fail(422, { message: e instanceof Error ? e.message : 'Failed to refresh feed' });
+			const msg = e instanceof Error ? e.message : 'Unknown error';
+			console.log(`[refreshFeed] ERROR: ${feed.url} — ${msg}`);
+			return fail(422, { message: msg });
 		}
 	},
 
@@ -107,16 +113,30 @@ export const actions: Actions = {
 			.where(eq(feedsTable.userId, locals.user.id));
 
 		let refreshed = 0;
+		let cached = 0;
 		let errors = 0;
 
 		for (const feed of userFeeds) {
 			try {
 				const result = await fetchFeed(feed.url, { etag: feed.etag ?? undefined, lastModified: feed.lastModified ?? undefined });
-				if (result.items.length > 0 || result.meta.title) await upsertFeed(db, locals.user.id, feed.url, result);
-				refreshed++;
-			} catch { errors++; }
+				if (result.items.length > 0 || result.meta.title) {
+					const { newItemCount } = await upsertFeed(db, locals.user.id, feed.url, result);
+					console.log('[refreshAll] OK:', feed.title || feed.url, `(${newItemCount} new items)`);
+					refreshed++;
+				} else {
+					console.log('[refreshAll] 304:', feed.title || feed.url);
+					cached++;
+				}
+			} catch (e) {
+				console.log('[refreshAll] ERR:', feed.title || feed.url, e instanceof Error ? e.message : e);
+				errors++;
+			}
 		}
 
-		return { success: `Refreshed ${refreshed} feed(s)${errors ? ` (${errors} failed)` : ''}` };
+		const parts = [`${refreshed} refreshed`];
+		if (cached > 0) parts.push(`${cached} cached`);
+		if (errors > 0) parts.push(`${errors} failed`);
+		console.log('[refreshAll] Done:', parts.join(', '));
+		return { success: parts.join(', ') };
 	}
 };

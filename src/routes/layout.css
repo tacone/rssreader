@@ -1,5 +1,8 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+
+@plugin "daisyui" {
+	logs: false;
+}
 
 [data-provider] {
 	position: relative;

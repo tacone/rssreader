@@ -2,27 +2,21 @@ import { redirect, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
 import { feeds as feedsTable, items as itemsTable } from '$lib/server/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!locals.user) redirect(302, '/login');
 
 	const feed = await db
-		.select({
-			id: feedsTable.id,
-			url: feedsTable.url,
-			title: feedsTable.title,
-			siteUrl: feedsTable.siteUrl,
-			icon: feedsTable.icon
-		})
+		.select({ id: feedsTable.id })
 		.from(feedsTable)
-		.where(and(eq(feedsTable.id, params.id), eq(feedsTable.userId, locals.user.id)))
+		.where(and(eq(feedsTable.slug, params.feedSlug), eq(feedsTable.userId, locals.user.id)))
 		.limit(1)
 		.then((r) => r[0]);
 
-	if (!feed) redirect(302, '/dashboard');
+	if (!feed) redirect(302, '/dashboard/r');
 
-	const feedItems = await db
+	const item = await db
 		.select({
 			id: itemsTable.id,
 			title: itemsTable.title,
@@ -35,56 +29,73 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 			isStarred: itemsTable.isStarred
 		})
 		.from(itemsTable)
-		.where(eq(itemsTable.feedId, params.id))
-		.orderBy(desc(itemsTable.publishedAt));
+		.where(and(eq(itemsTable.slug, params.itemSlug), eq(itemsTable.feedId, feed.id)))
+		.limit(1)
+		.then((r) => r[0]);
 
-	return { feed, items: feedItems };
+	if (!item) redirect(302, `/dashboard/r/${params.feedSlug}`);
+
+	return { item };
 };
 
 export const actions: Actions = {
-	toggleRead: async ({ locals, request }) => {
-		if (!locals.user) return fail(401, { message: 'Not authenticated' });
+	toggleRead: async ({ locals, request, params }) => {
+		if (!locals.user) return fail(401);
 
 		const data = await request.formData();
 		const itemId = data.get('itemId') as string;
 		const isRead = data.get('isRead') === 'true';
+		if (!itemId) return fail(400);
 
-		if (!itemId) return fail(400, { message: 'Item ID required' });
-
-		const item = await db
-			.select({ id: itemsTable.id, feedId: itemsTable.feedId })
-			.from(itemsTable)
-			.where(and(eq(itemsTable.id, itemId), eq(itemsTable.feedId, data.get('feedId') as string)))
+		const feed = await db
+			.select({ id: feedsTable.id })
+			.from(feedsTable)
+			.where(and(eq(feedsTable.slug, params.feedSlug), eq(feedsTable.userId, locals.user.id)))
 			.limit(1)
 			.then((r) => r[0]);
 
-		if (!item) return fail(404, { message: 'Item not found' });
+		if (!feed) return fail(404);
+
+		const item = await db
+			.select({ id: itemsTable.id })
+			.from(itemsTable)
+			.where(and(eq(itemsTable.id, itemId), eq(itemsTable.feedId, feed.id)))
+			.limit(1)
+			.then((r) => r[0]);
+
+		if (!item) return fail(404);
 
 		await db.update(itemsTable).set({ isRead }).where(eq(itemsTable.id, itemId));
-
 		return { success: true };
 	},
 
-	toggleStar: async ({ locals, request }) => {
-		if (!locals.user) return fail(401, { message: 'Not authenticated' });
+	toggleStar: async ({ locals, request, params }) => {
+		if (!locals.user) return fail(401);
 
 		const data = await request.formData();
 		const itemId = data.get('itemId') as string;
 		const isStarred = data.get('isStarred') === 'true';
+		if (!itemId) return fail(400);
 
-		if (!itemId) return fail(400, { message: 'Item ID required' });
-
-		const item = await db
-			.select({ id: itemsTable.id, feedId: itemsTable.feedId })
-			.from(itemsTable)
-			.where(and(eq(itemsTable.id, itemId), eq(itemsTable.feedId, data.get('feedId') as string)))
+		const feed = await db
+			.select({ id: feedsTable.id })
+			.from(feedsTable)
+			.where(and(eq(feedsTable.slug, params.feedSlug), eq(feedsTable.userId, locals.user.id)))
 			.limit(1)
 			.then((r) => r[0]);
 
-		if (!item) return fail(404, { message: 'Item not found' });
+		if (!feed) return fail(404);
+
+		const item = await db
+			.select({ id: itemsTable.id })
+			.from(itemsTable)
+			.where(and(eq(itemsTable.id, itemId), eq(itemsTable.feedId, feed.id)))
+			.limit(1)
+			.then((r) => r[0]);
+
+		if (!item) return fail(404);
 
 		await db.update(itemsTable).set({ isStarred }).where(eq(itemsTable.id, itemId));
-
 		return { success: true };
 	}
 };

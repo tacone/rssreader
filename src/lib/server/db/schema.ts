@@ -19,6 +19,7 @@ export const feeds = pgTable(
 	'feeds',
 	{
 		id: text('id').primaryKey(),
+		slug: text('slug').notNull(),
 		userId: text('user_id')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
@@ -39,17 +40,13 @@ export const feeds = pgTable(
 	]
 );
 
-export const feedsRelations = relations(feeds, ({ many }) => ({
-	items: many(items),
-	feedFolders: many(feedFolders)
-}));
-
 // --- Items ---
 
 export const items = pgTable(
 	'items',
 	{
 		id: text('id').primaryKey(),
+		slug: text('slug').notNull(),
 		feedId: text('feed_id')
 			.notNull()
 			.references(() => feeds.id, { onDelete: 'cascade' }),
@@ -66,6 +63,7 @@ export const items = pgTable(
 	},
 	(table) => [
 		uniqueIndex('items_feed_guid_idx').on(table.feedId, table.guid),
+		uniqueIndex('items_feed_slug_idx').on(table.feedId, table.slug),
 		index('items_feed_id_idx').on(table.feedId),
 		index('items_published_at_idx').on(table.publishedAt),
 		index('items_is_read_idx').on(table.isRead),

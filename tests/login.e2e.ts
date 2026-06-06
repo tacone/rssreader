@@ -17,7 +17,7 @@ test('login page submits and redirects', async ({ page }) => {
 	await page.getByPlaceholder('Password').fill('admin123');
 	await page.getByRole('button', { name: 'Log in' }).click();
 	await page.waitForURL('/dashboard');
-	await expect(page.locator('h1')).toContainText('Dashboard');
+	await expect(page.locator('h1')).toContainText('Manage Feeds');
 });
 
 test('login with invalid credentials shows error', async ({ page }) => {

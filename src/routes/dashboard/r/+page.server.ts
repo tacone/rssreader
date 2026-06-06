@@ -5,28 +5,7 @@ import { feeds as feedsTable, items as itemsTable } from '$lib/server/db/schema'
 import { fetchFeed } from '$lib/server/feed/fetch';
 import { upsertFeed } from '$lib/server/feed/store';
 import { auth } from '$lib/server/auth';
-import { eq, and, sql } from 'drizzle-orm';
-
-export const load: PageServerLoad = async ({ locals }) => {
-	if (!locals.user) redirect(302, '/login');
-
-	const feeds = await db
-		.select({
-			id: feedsTable.id,
-			slug: feedsTable.slug,
-			url: feedsTable.url,
-			title: feedsTable.title,
-			siteUrl: feedsTable.siteUrl,
-			icon: feedsTable.icon,
-			lastFetchedAt: feedsTable.lastFetchedAt,
-			errorCount: feedsTable.errorCount
-		})
-		.from(feedsTable)
-		.where(eq(feedsTable.userId, locals.user.id))
-		.orderBy(sql`lower(${feedsTable.title})`);
-
-	return { feeds };
-};
+import { eq, and } from 'drizzle-orm';
 
 export const actions: Actions = {
 	signOut: async ({ request }) => {

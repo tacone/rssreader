@@ -61,7 +61,7 @@ Build the core feed pipeline: fetch → parse → store.
 
 The main UI.
 
-- [x] Feed detail page (`/feeds/[id]`) with item list
+- [x] Reading URL scheme: `/dashboard/r/[feed-slug]/[item-slug]`
 - [x] Dashboard layout: three-pane (sidebar + item list + content pane)
   - [x] Sidebar: feed list with unread counts, add-feed form
   - [x] Content pane: item list for selected feed

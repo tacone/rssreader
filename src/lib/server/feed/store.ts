@@ -4,6 +4,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type * as schema from '../db/schema';
 import type { FetchResult } from './fetch';
+import { generateSlug } from '../slug';
 
 export type DB = PostgresJsDatabase<typeof schema>;
 
@@ -23,9 +24,11 @@ export async function upsertFeed(
 
 	if (existing.length > 0) {
 		feedId = existing[0].id;
+		const slug = existing[0].slug || generateSlug(feedId, fetchResult.meta.title, url);
 		await db
 			.update(feedsTable)
 			.set({
+				slug,
 				title: fetchResult.meta.title,
 				description: fetchResult.meta.description,
 				siteUrl: fetchResult.meta.link,
@@ -38,8 +41,10 @@ export async function upsertFeed(
 			.where(eq(feedsTable.id, feedId));
 	} else {
 		feedId = randomUUID();
+		const slug = generateSlug(feedId, fetchResult.meta.title, url);
 		await db.insert(feedsTable).values({
 			id: feedId,
+			slug,
 			userId,
 			url,
 			title: fetchResult.meta.title,
@@ -54,10 +59,12 @@ export async function upsertFeed(
 
 	const newItems = fetchResult.items.filter((item) => item.guid);
 	for (const item of newItems) {
+		const itemId = randomUUID();
 		await db
 			.insert(itemsTable)
 			.values({
-				id: randomUUID(),
+				id: itemId,
+				slug: generateSlug(itemId, item.title, item.url),
 				feedId,
 				guid: item.guid,
 				url: item.url,

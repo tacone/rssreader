@@ -1,3 +1,17 @@
+## 2026-06-06 — Slug-based Reading URLs + Routing Refactor
+
+- Removed `/feeds/[id]` route (replaced by `/dashboard/r/`)
+- Added `slug` column to `feeds` and `items` tables (nullable → backfilled → NOT NULL + unique indexes)
+- Slug format: `kebab-case-title-XXXXXXXX` where suffix is last 8 chars of UUID; falls back to URL domain if no title
+- New reading route: `/dashboard/r/[feedSlug]/[itemSlug]` with nested layout hierarchy
+  - Outer layout: sidebar (feeds with unread counts) + header (dark-mode toggle, sign out, refresh all)
+  - Feed layout: center item list (200 items, most recent first)
+  - Item page: right content pane with read/star toggles
+- `/dashboard` simplified to feed management only, with "Start Reading" link to `/dashboard/r/`
+- Floating dark-mode toggle moved into `/dashboard/r/` header bar
+- Slug utility with 12 tests (kebab conversion + generateSlug edge cases)
+- Updated login e2e test for new heading
+
 ## 2026-06-06 — Three-Pane Reading Layout
 
 - Dashboard rewritten as three-pane layout (CSS grid):

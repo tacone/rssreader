@@ -32,7 +32,11 @@ export const actions: Actions = {
 
 		let fetchResult;
 		try { fetchResult = await fetchFeed(url); }
-		catch (e) { return fail(422, { message: e instanceof Error ? e.message : 'Failed to fetch feed' }); }
+		catch (e) {
+			const msg = e instanceof Error ? e.message : 'Unknown error';
+			console.error(`[addFeed] ${url} — ${msg}`, e);
+			return fail(422, { message: msg });
+		}
 
 		if (fetchResult.items.length === 0 && !fetchResult.meta.title)
 			return fail(422, { message: 'No feed found at this URL' });
@@ -62,7 +66,9 @@ export const actions: Actions = {
 			if (result.items.length > 0 || result.meta.title) await upsertFeed(db, locals.user.id, feed.url, result);
 			return { success: 'Feed refreshed' };
 		} catch (e) {
-			return fail(422, { message: e instanceof Error ? e.message : 'Failed to refresh feed' });
+			const msg = e instanceof Error ? e.message : 'Unknown error';
+			console.error(`[refreshFeed] ${feed.url} — ${msg}`, e);
+			return fail(422, { message: msg });
 		}
 	},
 

@@ -1,3 +1,10 @@
+## 2026-06-06 — YouTube embed thumbnails + feeds:refresh-all CLI
+
+- YouTube/TED iframes in feed content are now converted to thumbnail links at sanitize time (DOMPurify preprocessing)
+- Click a thumbnail to load the actual iframe (click-to-embed) via `RssEmbedHandler` component
+- Play button overlay on embed thumbnails (CSS pseudo-element with hover effect)
+- New `feeds:refresh-all <email>` CLI command to refresh all feeds for a user
+
 ## 2026-06-06 — Raw content columns + DOMPurify sanitization
 
 - Added `raw_title`, `raw_summary`, `raw_content` columns to `items` table

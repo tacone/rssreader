@@ -55,9 +55,30 @@ describe('sanitizeHtml', () => {
 		expect(sanitizeHtml(html)).toBe('<a>click</a>');
 	});
 
-	it('strips iframes', () => {
+	it('strips generic iframes', () => {
 		const html = '<p>text</p><iframe src="https://evil.com"></iframe><p>more</p>';
 		expect(sanitizeHtml(html)).toBe('<p>text</p><p>more</p>');
+	});
+
+	it('converts YouTube embed iframe to thumbnail link', () => {
+		const html = '<p>text</p><iframe width="200" height="113" src="https://www.youtube.com/embed/s8iXW3GHx3w?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="The Vast"></iframe><p>more</p>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('data-provider="youtube"');
+		expect(result).toContain('data-videoid="s8iXW3GHx3w"');
+		expect(result).toContain('src="https://img.youtube.com/vi/s8iXW3GHx3w/hqdefault.jpg"');
+		expect(result).toContain('href="https://www.youtube.com/watch?v=s8iXW3GHx3w"');
+		expect(result).not.toContain('<iframe');
+	});
+
+	it('converts TED embed iframe to plain link', () => {
+		const html = '<iframe src="https://embed.ted.com/talks/seth_shostak_et_is_probably_out_there_get_ready" width="560" height="316" frameborder="0" scrolling="no" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+		const result = sanitizeHtml(html);
+		expect(result).toBe('<a href="https://embed.ted.com/talks/seth_shostak_et_is_probably_out_there_get_ready">TED Talk</a>');
+	});
+
+	it('does not convert non-YouTube/TED iframes', () => {
+		const html = '<iframe src="https://vimeo.com/123"></iframe>';
+		expect(sanitizeHtml(html)).toBe('');
 	});
 
 	it('strips form and input elements (text content survives)', () => {

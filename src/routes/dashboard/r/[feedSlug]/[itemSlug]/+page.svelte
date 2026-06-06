@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
+	import RssEmbedHandler from '$lib/components/RssEmbedHandler.svelte';
 
 	let { data }: {
 		data: {
@@ -13,6 +14,8 @@
 		return () => {};
 	}
 </script>
+
+<RssEmbedHandler />
 
 <article class="flex flex-col gap-4 p-6">
 	<div class="flex items-start justify-between gap-3">

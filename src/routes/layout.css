@@ -1,2 +1,31 @@
 @import 'tailwindcss';
 @plugin "daisyui";
+
+[data-provider] {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+}
+
+[data-provider]::after {
+	content: '▶';
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 3rem;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.35);
+	transition: background 0.15s;
+}
+
+[data-provider]:hover::after {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+[data-provider] img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}

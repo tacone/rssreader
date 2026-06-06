@@ -1,3 +1,11 @@
+## 2026-06-06 — Fix DaisyUI v5 variable names + light mode
+
+- Fixed all `.feed-content` CSS to use correct DaisyUI v5 variable names (`--color-base-content`, `--color-primary`, `--color-accent`, `--color-base-200`, etc.) instead of short aliases (`--bc`, `--p`, `--b2`) that don't exist
+- Alpha values now use `color-mix()` since variables are full `oklch()` values
+- All styles now work in both light and dark mode
+- Links use accent color at 70% opacity, disc markers use text color
+- Bullet lists, blockquote border, broken image placeholder all visible in both themes
+
 ## 2026-06-06 — Feed content typography
 
 - Feed content now styled with `.feed-content` class: proper heading sizes, link colors, blockquote border, code/pre blocks with monospace, tables, horizontal rules, responsive images, figure/figcaption, details/summary

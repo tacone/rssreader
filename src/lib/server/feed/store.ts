@@ -96,7 +96,20 @@ export async function upsertFeed(
 				author: item.author,
 				publishedAt: item.publishedAt
 			})
-			.onConflictDoNothing({ target: [itemsTable.feedId, itemsTable.guid] });
+			.onConflictDoUpdate({
+				target: [itemsTable.feedId, itemsTable.guid],
+				set: {
+					title,
+					url: item.url,
+					rawTitle,
+					rawSummary,
+					rawContent,
+					content,
+					summary,
+					author: item.author,
+					publishedAt: item.publishedAt
+				}
+			});
 	}
 
 	return { feedId, newItemCount: newItems.length };

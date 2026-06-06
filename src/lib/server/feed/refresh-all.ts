@@ -6,9 +6,13 @@ import { upsertFeed } from './store';
 import { eq } from 'drizzle-orm';
 
 async function main() {
-	const email = process.argv[2];
+	const args = process.argv.slice(2);
+	const force = args.includes('--force');
+	const email = args.find((a) => !a.startsWith('--'));
+
 	if (!email) {
-		console.error('Usage: bun run feeds:refresh-all <user-email>');
+		console.error('Usage: bun run feeds:refresh-all [--force] <user-email>');
+		console.error('  With npm: npm run feeds:refresh-all -- [--force] <user-email>');
 		process.exit(1);
 	}
 
@@ -44,31 +48,36 @@ async function main() {
 			process.exit(0);
 		}
 
-		console.log(`Refreshing ${feeds.length} feed(s) for ${email}...`);
+		console.log(`Refreshing ${feeds.length} feed(s) for ${email}${force ? ' (forced)' : ''}...`);
 
 		let refreshed = 0;
+		let cached = 0;
 		let errors = 0;
 
 		for (const feed of feeds) {
 			try {
-				const result = await fetchFeed(feed.url, {
+				const result = await fetchFeed(feed.url, force ? undefined : {
 					etag: feed.etag ?? undefined,
 					lastModified: feed.lastModified ?? undefined,
 				});
 				if (result.items.length > 0 || result.meta.title) {
 					const { newItemCount } = await upsertFeed(db, user.id, feed.url, result);
 					console.log(`  OK: ${feed.title || feed.url} (${newItemCount} new items)`);
+					refreshed++;
 				} else {
 					console.log(`  304: ${feed.title || feed.url}`);
+					cached++;
 				}
-				refreshed++;
 			} catch (e) {
 				console.error(`  ERR: ${feed.title || feed.url} — ${e instanceof Error ? e.message : e}`);
 				errors++;
 			}
 		}
 
-		console.log(`Done: ${refreshed} refreshed, ${errors} failed`);
+		const parts = [`${refreshed} refreshed`];
+		if (cached > 0) parts.push(`${cached} cached`);
+		if (errors > 0) parts.push(`${errors} failed`);
+		console.log(`Done: ${parts.join(', ')}`);
 	} catch (err) {
 		console.error('Error:', err instanceof Error ? err.message : err);
 		process.exit(1);

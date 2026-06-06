@@ -1,3 +1,10 @@
+## 2026-06-06 — onConflictDoUpdate + feeds:refresh-all --force
+
+- Items now update on re-fetch (`onConflictDoUpdate` instead of `onConflictDoNothing`) — picks up sanitizer changes, retains read/star state
+- `feeds:refresh-all` CLI: `--force` flag to ignore etag/lastModified
+- Output now distinguishes `refreshed` vs `cached` (304)
+- Embed thumbnails now work retroactively after `--force` refresh
+
 ## 2026-06-06 — YouTube embed thumbnails + feeds:refresh-all CLI
 
 - YouTube/TED iframes in feed content are now converted to thumbnail links at sanitize time (DOMPurify preprocessing)

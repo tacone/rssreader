@@ -109,8 +109,8 @@
 }
 
 .feed-content ol > li::marker {
-	color: var(--color-neutral);
-	font-weight: 600;
+	color: var(--color-base-content);
+	font-weight: 400;
 }
 
 .feed-content blockquote {

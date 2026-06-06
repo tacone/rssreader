@@ -1,3 +1,9 @@
+## 2026-06-06 — Fix #7: switch cookieCache from JWT to JWE
+
+- Changed `cookieCache.strategy` from `'jwt'` to `'jwe'` — session cookie is now symmetrically encrypted (A256CBC-HS512) instead of using asymmetric JWT signatures
+- Eliminates the `select from "jwks"` query on every request: cookie verification uses the app secret, not asymmetric keys
+- JWT plugin stays for API token generation — only the cookie cache strategy changed
+
 ## 2026-06-06 — Fix DaisyUI v5 variable names + light mode
 
 - Fixed all `.feed-content` CSS to use correct DaisyUI v5 variable names (`--color-base-content`, `--color-primary`, `--color-accent`, `--color-base-200`, etc.) instead of short aliases (`--bc`, `--p`, `--b2`) that don't exist

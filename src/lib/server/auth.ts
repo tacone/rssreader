@@ -17,10 +17,10 @@ export const auth = betterAuth({
 		cookieCache: {
 			enabled: true,
 			maxAge: 7 * 24 * 60 * 60,
-			strategy: 'jwt'
+			strategy: 'jwe'
 		}
 	},
 	account: { modelName: 'accounts' },
 	verification: { modelName: 'verifications' },
-	plugins: [bearer(), jwt(), sveltekitCookies(getRequestEvent)]
+	plugins: [bearer(), jwt({ disableSettingJwtHeader: true }), sveltekitCookies(getRequestEvent)]
 });

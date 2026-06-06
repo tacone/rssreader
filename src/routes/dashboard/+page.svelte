@@ -68,9 +68,11 @@
 		<ul class="flex flex-col gap-2">
 			{#each data.feeds as feed (feed.id)}
 				<li class="card card-border card-side items-center bg-base-200 px-4 py-3">
-					{#if feed.icon}
-						<img src={feed.icon} alt="" class="size-6 rounded" />
-					{/if}
+					<span class="inline-block size-6 shrink-0">
+						{#if feed.icon}
+							<img src={feed.icon} alt="" class="size-6 rounded" onerror={e => (e.currentTarget as HTMLImageElement).hidden = true} />
+						{/if}
+					</span>
 					<div class="min-w-0 flex-1 px-3">
 						<a href="/dashboard/r/{feed.slug}" class="link link-hover truncate block font-medium">{feed.title || feed.url}</a>
 						<p class="truncate text-sm text-base-content/60">{feed.url}</p>

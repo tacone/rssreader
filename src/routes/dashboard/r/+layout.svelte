@@ -74,9 +74,11 @@
 				{#each data.feeds as feed (feed.id)}
 					<li>
 						<a href="/dashboard/r/{feed.slug}" class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-base-300 {($page.url.pathname + $page.url.search).includes(feed.slug) ? 'bg-base-300' : ''}">
-							{#if feed.icon}
-								<img src={feed.icon} alt="" class="size-4 rounded" />
-							{/if}
+							<span class="inline-block size-4 shrink-0">
+								{#if feed.icon}
+									<img src={feed.icon} alt="" class="size-4 rounded" onerror={e => (e.currentTarget as HTMLImageElement).hidden = true} />
+								{/if}
+							</span>
 							<span class="min-w-0 flex-1 truncate">{feed.title || feed.url}</span>
 							{#if feed.unread > 0}
 								<span class="badge badge-primary badge-xs">{feed.unread}</span>

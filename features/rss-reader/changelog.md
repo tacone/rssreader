@@ -1,7 +1,8 @@
-## 2026-06-06 — Fix #6: theme toggle icon out of sync
+## 2026-06-06 — Fix #10: graceful favicon fallback + Fix #6: theme icon sync
 
+- fix: wrap feed favicon in a fixed-size `<span>` placeholder — maintains consistent flex alignment whether icon is present, missing, or unloadable
+- fix: add `onerror` handler to hide broken favicon images without collapsing the layout
 - fix: initialize `theme` state from `localStorage` (via `browser` guard) instead of hardcoding `'light'`
-- Icon now shows the correct sun/moon SVG on page load, matching the actual `data-theme` attribute
 
 ## 2026-06-06 — Caddy: immutable caching for Vite versioned assets
 

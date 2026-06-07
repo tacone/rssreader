@@ -11,7 +11,7 @@ const ALLOWED_TAGS = [
 	'em', 'figcaption', 'figure',
 	'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr',
 	'i', 'img', 'ins', 'kbd', 'li', 'mark',
-	'ol', 'p', 'pre', 'q',
+	'ol', 'p', 'picture', 'pre', 'q',
 	's', 'samp', 'small', 'source', 'span', 'strong', 'sub', 'summary', 'sup',
 	'video',
 	'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr',
@@ -21,7 +21,7 @@ const ALLOWED_TAGS = [
 const ALLOWED_ATTR = [
 	'abbr', 'alt', 'cite', 'class', 'colspan', 'controls', 'datetime', 'decoding',
 	'height', 'href', 'hreflang', 'loading', 'loop', 'playsinline',
-	'poster', 'rel', 'rowspan', 'scope', 'src', 'start', 'target', 'title', 'type', 'value', 'width',
+	'poster', 'rel', 'rowspan', 'scope', 'sizes', 'src', 'srcset', 'start', 'target', 'title', 'type', 'value', 'width',
 ];
 
 const YOUTUBE_RE = /<iframe[^>]*src="https?:\/\/(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"]*"[^>]*>[\s\S]*?<\/iframe>/gi;

@@ -163,6 +163,16 @@ describe('sanitizeHtml', () => {
 		expect(result).toContain('<source src="x.mp4" type="video/mp4">');
 	});
 
+	it('preserves picture elements with srcset and sizes', () => {
+		const html = '<picture><source srcset="img.webp" type="image/webp" sizes="(max-width: 600px) 100vw, 50vw"><img src="img.jpg" alt="photo"></picture>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('<picture>');
+		expect(result).toContain('<source srcset="img.webp"');
+		expect(result).toContain('sizes="(max-width: 600px) 100vw, 50vw"');
+		expect(result).toContain('type="image/webp"');
+		expect(result).toContain('<img src="img.jpg"');
+	});
+
 	it('strips nested dangerous content inside safe elements', () => {
 		const html = '<div><p><script>alert(1)</script></p></div>';
 		expect(sanitizeHtml(html)).toBe('<div><p></p></div>');

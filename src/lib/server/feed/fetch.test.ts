@@ -83,6 +83,35 @@ const sampleAtomObjectContent = `<?xml version="1.0" encoding="UTF-8"?>
   </entry>
 </feed>`;
 
+// Atom feed with only <updated> (no <published>) — Julia Evans-style
+const sampleAtomUpdatedOnly = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Updated-Only Feed</title>
+  <link href="https://example.com"/>
+  <entry>
+    <id>upd-1</id>
+    <title>Updated Only</title>
+    <link href="https://example.com/1"/>
+    <summary>No published date</summary>
+    <updated>2024-06-15T00:00:00Z</updated>
+  </entry>
+</feed>`;
+
+// Atom feed with both <published> (earlier) and <updated> (later)
+const sampleAtomBothDates = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Both Dates Feed</title>
+  <link href="https://example.com"/>
+  <entry>
+    <id>both-1</id>
+    <title>Both Dates</title>
+    <link href="https://example.com/1"/>
+    <summary>Has both dates</summary>
+    <published>2024-01-01T00:00:00Z</published>
+    <updated>2024-06-15T00:00:00Z</updated>
+  </entry>
+</feed>`;
+
 describe('extractText', () => {
 	it('should return string as-is', () => {
 		expect(extractText('hello')).toBe('hello');
@@ -178,6 +207,36 @@ describe('fetchFeed', () => {
 		expect(result.items[0].title).toBe('Object entry');
 		expect(result.items[0].rawContent).toBe('<p>Object content</p>');
 		expect(result.items[0].rawSummary).toBe('Object summary');
+	});
+
+	it('should use updated when published is missing (Julia Evans-style)', async () => {
+		mockFetch.mockResolvedValue({
+			ok: true,
+			status: 200,
+			text: () => Promise.resolve(sampleAtomUpdatedOnly),
+			headers: new Map()
+		});
+
+		const { fetchFeed } = await import('./fetch');
+		const result = await fetchFeed('https://example.com/atom.xml');
+
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0].publishedAt).toEqual(new Date('2024-06-15T00:00:00Z'));
+	});
+
+	it('should use earlier date when both published and updated are present', async () => {
+		mockFetch.mockResolvedValue({
+			ok: true,
+			status: 200,
+			text: () => Promise.resolve(sampleAtomBothDates),
+			headers: new Map()
+		});
+
+		const { fetchFeed } = await import('./fetch');
+		const result = await fetchFeed('https://example.com/atom.xml');
+
+		expect(result.items).toHaveLength(1);
+		expect(result.items[0].publishedAt).toEqual(new Date('2024-01-01T00:00:00Z'));
 	});
 
 	it('should return empty on 304 Not Modified', async () => {

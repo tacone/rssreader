@@ -115,7 +115,14 @@ export async function fetchFeed(
 				rawContent,
 				rawSummary: extractText(entrySummary),
 				author: authors?.[0]?.name as string | undefined,
-				publishedAt: entry.published ? new Date(entry.published as string) : undefined
+				publishedAt: (() => {
+					const pub = entry.published as string | undefined;
+					const upd = entry.updated as string | undefined;
+					if (pub && upd) return new Date(Math.min(+new Date(pub), +new Date(upd)));
+					if (pub) return new Date(pub);
+					if (upd) return new Date(upd);
+					return undefined;
+				})()
 			});
 		}
 	} else if (parsed.format === 'rdf') {

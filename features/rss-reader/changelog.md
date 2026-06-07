@@ -1,3 +1,12 @@
+## 2026-06-07 — Language detection from CSS classes, relevance threshold
+
+- feat: `highlightCodeBlocks` checks `<pre>` (and sole-child `<code>`) classes for language hints before `highlightAuto`
+- Priority: `language-*` prefixed classes → bare class names (`getLanguage`) → auto-detection
+- Uses `getLanguage().name` resolved via registration-key map so `hljs.highlight()` works correctly (fixed `"Shell Session"` crash)
+- Explicit language class sets `data-relevance="9999"` (guaranteed to outrank auto-detection)
+- Auto-detection with relevance < 12 skips highlighting (no `hljs-` spans) but still sets `language-*` class and `data-relevance` attribute
+- 11 new/updated tests, 152 total
+
 ## 2026-06-07 — feeds:recompute-all CLI command
 
 - feat: `feeds:recompute-all <email>` re-applies sanitization pipeline to all existing items from their raw fields, without refetching — picks up changes in sanitization logic (syntax highlighting, URL resolution, etc.)

@@ -321,6 +321,51 @@ function isWhitespaceNode(node: Node): boolean {
 	return node.nodeType === 3 && (!node.textContent || !node.textContent.trim().length);
 }
 
+const EXPLICIT_RELEVANCE = 9999;
+const MIN_AUTO_RELEVANCE = 12;
+
+const languageRegistration: Record<string, string> = Object.create(null);
+{
+	const langs = hljs.listLanguages();
+	for (const key of langs) {
+		const lang = hljs.getLanguage(key);
+		if (!lang) continue;
+		languageRegistration[key] = key;
+		if (lang.name) languageRegistration[lang.name] = key;
+		if (lang.aliases) {
+			for (const alias of lang.aliases) languageRegistration[alias] = key;
+		}
+	}
+}
+
+function resolveLanguage(input: string): string | null {
+	const key = languageRegistration[input];
+	if (key) return key;
+	if (hljs.getLanguage(input)) return input;
+	return null;
+}
+
+function detectLanguageFromElement(el: Element): string | null {
+	const classes = Array.from(el.classList);
+
+	for (const cls of classes) {
+		if (cls.startsWith('language-')) {
+			const candidate = cls.slice('language-'.length);
+			if (!candidate) continue;
+			const lang = resolveLanguage(candidate);
+			if (lang) return lang;
+		}
+	}
+
+	for (const cls of classes) {
+		if (cls.startsWith('language-')) continue;
+		const lang = resolveLanguage(cls);
+		if (lang) return lang;
+	}
+
+	return null;
+}
+
 function highlightCodeBlocks(html: string): string {
 	if (!html.includes('<pre')) return html;
 
@@ -347,12 +392,32 @@ function highlightCodeBlocks(html: string): string {
 
 		if (!codeText || !codeText.trim()) continue;
 
-		const result = hljs.highlightAuto(codeText);
+		const explicitLang = detectLanguageFromElement(pre) || (isCodeChild && detectLanguageFromElement(childElements[0]));
 
-		if (isCodeChild) {
-			childElements[0].innerHTML = result.value;
+		let highlighted: ReturnType<typeof hljs.highlightAuto>;
+		let doHighlight: boolean;
+
+		if (explicitLang) {
+			highlighted = hljs.highlight(codeText, { language: explicitLang });
+			highlighted.relevance = EXPLICIT_RELEVANCE;
+			doHighlight = true;
 		} else {
-			pre.innerHTML = result.value;
+			highlighted = hljs.highlightAuto(codeText);
+			doHighlight = highlighted.relevance >= MIN_AUTO_RELEVANCE;
+		}
+
+		const result = {
+			value: highlighted.value,
+			language: highlighted.language || 'plaintext',
+			relevance: highlighted.relevance,
+		};
+
+		if (doHighlight) {
+			if (isCodeChild) {
+				childElements[0].innerHTML = result.value;
+			} else {
+				pre.innerHTML = result.value;
+			}
 		}
 
 		const langClass = `language-${result.language || 'plaintext'}`;

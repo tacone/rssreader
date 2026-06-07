@@ -632,19 +632,59 @@ describe('sanitizeHtml', () => {
 	// ── Syntax highlighting ──────────────────────────────────
 
 	describe('syntax highlighting', () => {
-		it('highlights <pre> with plain text', () => {
-			const result = sanitizeHtml('<pre>var x = 1;</pre>');
+		// Must not contain unescaped < or > — JSDOM would interpret them as HTML tags
+		const PYTHON_SNIPPET =
+			'import os\nimport sys\nfrom typing import List\n\n' +
+			'def load_data(path: str) -> List[str]:\n' +
+			'    with open(path) as f:\n' +
+			'        return [line.strip() for line in f if line.strip()]\n\n' +
+			'def process(items: List[str]) -> List[str]:\n' +
+			'    result = []\n' +
+			'    for item in items:\n' +
+			'        if not item.startswith("#"):\n' +
+			'            result.append(item.upper())\n' +
+			'    return result\n\n' +
+			'class Reporter:\n' +
+			'    def __init__(self, name: str):\n' +
+			'        self.name = name\n' +
+			'        self.count = 0\n\n' +
+			'    def report(self, msg: str) -> None:\n' +
+			'        self.count += 1\n' +
+			'        print(f"[{self.name}] {msg}")\n\n' +
+			'def main() -> None:\n' +
+			'    args = sys.argv[1:]\n' +
+			'    if not args:\n' +
+			'        print("Usage: script.py PATH")\n' +
+			'        sys.exit(1)\n' +
+			'    r = Reporter("test")\n' +
+			'    for path in args:\n' +
+			'        if os.path.exists(path):\n' +
+			'            data = load_data(path)\n' +
+			'            output = process(data)\n' +
+			'            r.report(f"processed {len(output)} lines")\n' +
+			'            for line in output:\n' +
+			'                print(line)\n\n' +
+			'if __name__ == "__main__":\n' +
+			'    main()';
+
+		it('highlights <pre> when auto-relevance >= 12', () => {
+			const result = sanitizeHtml(`<pre>${PYTHON_SNIPPET}</pre>`);
 			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
 			expect(result).toContain('hljs-');
 		});
 
-		it('highlights <pre><code>text</code></pre>', () => {
-			const result = sanitizeHtml('<pre><code>def hello(name):\n    return f"hi {name}"</code></pre>');
-			const pre = result.match(/^<pre class="language-(\w+)" data-relevance="(\d+)">/);
-			expect(pre).not.toBeNull();
+		it('highlights <pre><code> when auto-relevance >= 12', () => {
+			const result = sanitizeHtml(`<pre><code>${PYTHON_SNIPPET}</code></pre>`);
+			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
 			expect(result).toContain('hljs-');
 			expect(result).toContain('<code>');
 			expect(result).toContain('</code>');
+		});
+
+		it('skips highlighting when auto-relevance < 12 but still sets class and attr', () => {
+			const result = sanitizeHtml('<pre>var x = 1;</pre>');
+			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
+			expect(result).not.toContain('hljs-');
 		});
 
 		it('skips <pre> with non-code child elements', () => {
@@ -664,11 +704,10 @@ describe('sanitizeHtml', () => {
 			expect(result).toBe('<pre>  </pre>');
 		});
 
-		it('preserves language class and data-relevance on <pre> with <code> sole child', () => {
+		it('sets class and attr on <pre><code> when auto-relevance < 12', () => {
 			const result = sanitizeHtml('<pre><code>var x = 1;</code></pre>');
 			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
-			expect(result).toContain('<code>');
-			expect(result).toContain('</code>');
+			expect(result).toContain('<code>var x = 1;</code>');
 		});
 
 		it('does not interfere with non-pre elements', () => {
@@ -677,9 +716,47 @@ describe('sanitizeHtml', () => {
 		});
 
 		it('works alongside relative URL resolution', () => {
-			const result = sanitizeHtml('<pre>var x = 1;</pre><img src="/pic.jpg">', 'https://example.com');
+			const result = sanitizeHtml(`<pre>${PYTHON_SNIPPET}</pre><img src="/pic.jpg">`, 'https://example.com');
 			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
 			expect(result).toContain('src="https://example.com/pic.jpg"');
+		});
+
+		it('uses language-javascript class on <pre> to select language', () => {
+			const result = sanitizeHtml('<pre class="language-javascript">var x = 1;</pre>');
+			expect(result).toContain('language-javascript');
+			expect(result).toContain('data-relevance="9999"');
+			expect(result).toContain('hljs-keyword');
+		});
+
+		it('uses language-python class on <pre> to select language', () => {
+			const result = sanitizeHtml('<pre class="language-python">def hello(name):\n    return name</pre>');
+			expect(result).toContain('language-python');
+			expect(result).toContain('data-relevance="9999"');
+		});
+
+		it('uses bare language class (js) on <pre>', () => {
+			const result = sanitizeHtml('<pre class="js">var x = 1;</pre>');
+			expect(result).toContain('language-javascript');
+			expect(result).toContain('data-relevance="9999"');
+			expect(result).toContain('hljs-keyword');
+		});
+
+		it('language- prefixed class takes priority over bare class', () => {
+			const result = sanitizeHtml('<pre class="language-javascript js">x = 1</pre>');
+			expect(result).toContain('language-javascript');
+			expect(result).toContain('data-relevance="9999"');
+		});
+
+		it('uses language class from sole-child <code> when <pre> has no language class', () => {
+			const result = sanitizeHtml('<pre><code class="language-javascript">var x = 1;</code></pre>');
+			expect(result).toContain('language-javascript');
+			expect(result).toContain('data-relevance="9999"');
+		});
+
+		it('adds language class and attr even when auto-relevance is low', () => {
+			const result = sanitizeHtml('<pre class="some-random-class">var x = 1;</pre>');
+			expect(result).toMatch(/^<pre class="some-random-class language-\w+" data-relevance="\d+">/);
+			expect(result).not.toContain('hljs-');
 		});
 	});
 });

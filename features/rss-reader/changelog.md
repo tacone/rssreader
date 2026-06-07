@@ -1,5 +1,13 @@
-## 2026-06-07 — Relative URL resolution at fetch time
+## 2026-06-07 — Syntax highlighting at fetch time, relative URL resolution
 
+### Syntax highlighting
+- feat: all `<pre>` blocks are syntax-highlighted at fetch time using highlight.js `highlightAuto`
+- Plain-text `<pre>` and `<pre><code>` sole-child patterns get highlighted; `<pre>` with other child elements are skipped
+- Detected language added as `language-*` class on `<pre>`, relevance score as `data-relevance` attribute
+- `github` hljs theme imported in `layout.css`
+- 8 new tests, 145 total
+
+### Relative URL resolution
 - feat: relative URLs in feed content (`src`, `href`, `poster`, `srcset`) resolved against the feed URL at sanitize time — no more broken image/links from relative paths
 - `sanitizeHtml(html, baseUrl?)` accepts optional base URL; store passes the feed URL
 

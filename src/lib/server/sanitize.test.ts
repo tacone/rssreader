@@ -628,4 +628,58 @@ describe('sanitizeHtml', () => {
 			expect(result).toBe('<p>Hello world</p>');
 		});
 	});
+
+	// ── Syntax highlighting ──────────────────────────────────
+
+	describe('syntax highlighting', () => {
+		it('highlights <pre> with plain text', () => {
+			const result = sanitizeHtml('<pre>var x = 1;</pre>');
+			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
+			expect(result).toContain('hljs-');
+		});
+
+		it('highlights <pre><code>text</code></pre>', () => {
+			const result = sanitizeHtml('<pre><code>def hello(name):\n    return f"hi {name}"</code></pre>');
+			const pre = result.match(/^<pre class="language-(\w+)" data-relevance="(\d+)">/);
+			expect(pre).not.toBeNull();
+			expect(result).toContain('hljs-');
+			expect(result).toContain('<code>');
+			expect(result).toContain('</code>');
+		});
+
+		it('skips <pre> with non-code child elements', () => {
+			const input = '<pre><b>bold text</b></pre>';
+			const result = sanitizeHtml(input);
+			expect(result).toBe(input);
+		});
+
+		it('skips <pre> with mixed children', () => {
+			const input = '<pre>text<code>code</code>more</pre>';
+			const result = sanitizeHtml(input);
+			expect(result).toBe(input);
+		});
+
+		it('skips empty <pre>', () => {
+			const result = sanitizeHtml('<pre>  </pre>');
+			expect(result).toBe('<pre>  </pre>');
+		});
+
+		it('preserves language class and data-relevance on <pre> with <code> sole child', () => {
+			const result = sanitizeHtml('<pre><code>var x = 1;</code></pre>');
+			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
+			expect(result).toContain('<code>');
+			expect(result).toContain('</code>');
+		});
+
+		it('does not interfere with non-pre elements', () => {
+			const result = sanitizeHtml('<p>Hello <code>world</code></p>');
+			expect(result).toBe('<p>Hello <code>world</code></p>');
+		});
+
+		it('works alongside relative URL resolution', () => {
+			const result = sanitizeHtml('<pre>var x = 1;</pre><img src="/pic.jpg">', 'https://example.com');
+			expect(result).toMatch(/^<pre class="language-\w+" data-relevance="\d+">/);
+			expect(result).toContain('src="https://example.com/pic.jpg"');
+		});
+	});
 });

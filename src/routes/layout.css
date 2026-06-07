@@ -4,6 +4,8 @@
 	logs: false;
 }
 
+@import 'highlight.js/styles/github.css';
+
 [data-provider] {
 	position: relative;
 	display: inline-block;

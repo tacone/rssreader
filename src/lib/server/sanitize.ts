@@ -1,5 +1,6 @@
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
+import hljs from 'highlight.js';
 
 const window = new JSDOM('').window;
 const purify = createDOMPurify(window);
@@ -314,17 +315,66 @@ function resolveRelativeUrls(html: string, baseUrl: string): string {
 	return body.innerHTML;
 }
 
+// ── Syntax highlighting ────────────────────────────────────────
+
+function isWhitespaceNode(node: Node): boolean {
+	return node.nodeType === 3 && (!node.textContent || !node.textContent.trim().length);
+}
+
+function highlightCodeBlocks(html: string): string {
+	if (!html.includes('<pre')) return html;
+
+	const doc = new JSDOM(html).window.document;
+	const body = doc.body;
+	const preBlocks = Array.from(body.querySelectorAll('pre'));
+
+	for (const pre of preBlocks) {
+		const children = Array.from(pre.childNodes);
+		const childElements = children.filter((n): n is Element => n.nodeType === 1);
+
+		let codeText: string | null = null;
+		let isCodeChild = false;
+
+		if (childElements.length === 0) {
+			codeText = pre.textContent;
+		} else if (childElements.length === 1 && childElements[0].tagName.toLowerCase() === 'code') {
+			const onlyElement = childElements[0];
+			if (children.every((n) => n === onlyElement || isWhitespaceNode(n))) {
+				codeText = onlyElement.textContent;
+				isCodeChild = true;
+			}
+		}
+
+		if (!codeText || !codeText.trim()) continue;
+
+		const result = hljs.highlightAuto(codeText);
+
+		if (isCodeChild) {
+			childElements[0].innerHTML = result.value;
+		} else {
+			pre.innerHTML = result.value;
+		}
+
+		const langClass = `language-${result.language || 'plaintext'}`;
+		pre.classList.add(langClass);
+		pre.setAttribute('data-relevance', String(result.relevance));
+	}
+
+	return body.innerHTML;
+}
+
 // ── Public API ──────────────────────────────────────────────────
 
 export function sanitizeHtml(html: string, baseUrl?: string): string {
 	if (baseUrl) html = resolveRelativeUrls(html, baseUrl);
+	html = highlightCodeBlocks(html);
 	const preprocessed = preprocessEmbeds(html);
 	const classified = classifyImages(preprocessed);
 	return purify.sanitize(classified, {
 		ALLOWED_TAGS,
 		ALLOWED_ATTR,
 		ALLOW_DATA_ATTR: false,
-		ADD_ATTR: ['data-provider', 'data-videoid'],
+		ADD_ATTR: ['data-provider', 'data-videoid', 'data-relevance'],
 		ALLOW_UNKNOWN_PROTOCOLS: false,
 	});
 }

@@ -505,6 +505,20 @@ describe('sanitizeHtml', () => {
 			expect(result).not.toContain('class="standalone-image"');
 		});
 
+		it('image with srcset inside <table> is not standalone', () => {
+			const result = sanitizeHtml(
+				'<table><tr><td><img src="chart.png" srcset="chart-2x.png 2x"></td></tr></table>'
+			);
+			expect(result).not.toContain('class="standalone-image"');
+		});
+
+		it('image in <picture> inside <table> is not standalone', () => {
+			const result = sanitizeHtml(
+				'<table><tr><td><picture><source srcset="chart.webp"><img src="chart.png"></picture></td></tr></table>'
+			);
+			expect(result).not.toContain('class="standalone-image"');
+		});
+
 		it('image with text on both sides is not standalone (default)', () => {
 			const result = sanitizeHtml('<p>left <img src="x.jpg"> right</p>');
 			expect(result).not.toContain('class="standalone-image"');

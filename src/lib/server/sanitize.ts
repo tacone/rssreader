@@ -253,7 +253,7 @@ export function classifyImages(html: string): string {
 
 	for (const img of images) {
 		const isSrcsetOrPicture = img.hasAttribute('srcset') || img.closest('picture');
-		if (isSrcsetOrPicture && !hasFigureAncestor(img)) {
+		if (isSrcsetOrPicture && !hasFigureAncestor(img) && !hasTableAncestor(img)) {
 			img.classList.add('standalone-image');
 		} else if (isInlineImage(img)) {
 			img.classList.add('inline-image');

@@ -1,3 +1,8 @@
+## 2026-06-07 — feeds:recompute-all CLI command
+
+- feat: `feeds:recompute-all <email>` re-applies sanitization pipeline to all existing items from their raw fields, without refetching — picks up changes in sanitization logic (syntax highlighting, URL resolution, etc.)
+- Run with `bun run feeds:recompute-all <email>` or `npm run feeds:recompute-all -- <email>`
+
 ## 2026-06-07 — Syntax highlighting at fetch time, relative URL resolution
 
 ### Syntax highlighting

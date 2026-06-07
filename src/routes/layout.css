@@ -189,7 +189,7 @@ margin-right: 0.3em;
 
 .feed-content figcaption {
 	font-size: 0.875em;
-	color: var(--color-neutral);
+	color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
 	text-align: center;
 	margin-top: 0.75em;
 	line-height: 1.4;

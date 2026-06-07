@@ -1,3 +1,10 @@
+## 2026-06-07 — Video support, text-adjacency classes, figure styling
+
+- feat: preserve `<video>` elements with `controls` forced, `poster` allowed, `autoplay` stripped by DOMPurify
+- feat: inline images now get `.preceded-by-text` / `.followed-by-text` when adjacent to visible text content (scan walks up through transparent wrappers, stops at `<br>`)
+- style: `.feed-content <figure>` styled to match `.standalone-image` (block, centered, rounded, background, padding)
+- style: fix `<figure>` img double padding
+
 ## 2026-06-07 — Spec + tests + implement: inline image classification
 
 - docs: `features/rss-reader/specs/inline-image-classification.md` — comprehensive spec for classifying feed images as standalone (centered block) vs inline (text-height) at sanitize time

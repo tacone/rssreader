@@ -1,3 +1,9 @@
+## 2026-06-07 — Spec + tests + implement: inline image classification
+
+- docs: `features/rss-reader/specs/inline-image-classification.md` — comprehensive spec for classifying feed images as standalone (centered block) vs inline (text-height) at sanitize time
+- Three-way classification: inline-first (by height, URL patterns, `<pre>`, whitelist), standalone-second (sole child, surrounded by boundaries), and default (remainder, e.g. `<figure>`, consecutive images)
+- Heuristic based on research of Miniflux, NetNewsWire, NewsBlur image handling
+
 ## 2026-06-06 — Fix Atom feeds with string content (GitLab blog)
 
 - fix: `extractText()` helper handles feedsmith's `<content>`/`<summary>` returned as bare string (not `{ value }`) — GitLab, GitHub, and other Atom feeds now show article content

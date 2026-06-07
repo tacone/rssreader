@@ -128,17 +128,27 @@
 }
 
 .feed-content img {
-	max-width: 85%; /* accounts for padding */
+	max-width: 100%;
 	height: auto;
-	border-radius: 0.5rem;
+}
+
+.feed-content img.standalone-image {
+	display: block;
+	max-width: 85%;
 	margin: 2em auto;
+	border-radius: 0.5rem;
 	min-height: 3em;
 	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
 	padding: 2em;
-	line-height: 1.7;
-	color: color-mix(in oklch, var(--color-base-content) 40%, transparent);
 	object-fit: scale-down;
 }
+
+.feed-content img.inline-image {
+	display: inline-block;
+	max-height: 1em;
+	vertical-align: middle;
+}
+
 .feed-content a > img {
 	text-decoration: underline;
 }

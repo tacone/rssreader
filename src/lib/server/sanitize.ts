@@ -18,7 +18,7 @@ const ALLOWED_TAGS = [
 ];
 
 const ALLOWED_ATTR = [
-	'abbr', 'alt', 'cite', 'colspan', 'controls', 'datetime', 'decoding',
+	'abbr', 'alt', 'cite', 'class', 'colspan', 'controls', 'datetime', 'decoding',
 	'height', 'href', 'hreflang', 'loading', 'loop', 'playsinline',
 	'rel', 'rowspan', 'scope', 'src', 'start', 'target', 'title', 'type', 'value', 'width',
 ];
@@ -39,8 +39,185 @@ function preprocessEmbeds(html: string): string {
 	return html;
 }
 
+// ── Image classification ────────────────────────────────────────
+
+const BLOCK_TAGS = new Set([
+	'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+	'blockquote', 'li', 'dd', 'dt', 'pre', 'ol', 'ul',
+	'figure', 'figcaption',
+	'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr',
+	'caption', 'details', 'summary', 'dl',
+]);
+
+const INLINE_WRAPPER_TAGS = new Set([
+	'a', 'span', 'b', 'i', 'em', 'strong', 'u', 's',
+	'abbr', 'cite', 'code', 'del', 'dfn', 'ins', 'kbd',
+	'mark', 'q', 'samp', 'small', 'sub', 'sup', 'time', 'var',
+]);
+
+const INLINE_CLASS_WHITELIST = new Set(['wp-smiley']);
+
+const INLINE_DIMENSION_RE = /\d{1,3}x\d{1,2}/;
+
+function getOutermostWrapper(el: Element): Element {
+	let current = el;
+	while (current.parentElement && INLINE_WRAPPER_TAGS.has(current.parentElement.tagName.toLowerCase())) {
+		current = current.parentElement;
+	}
+	return current;
+}
+
+function isSoleChild(el: Element): boolean {
+	const parent = el.parentElement;
+	if (!parent) return false;
+	const children = Array.from(parent.childNodes);
+	return children.every(
+		(node) =>
+			node === el || (node.nodeType === 3 && (!node.textContent || !node.textContent!.trim().length))
+	);
+}
+
+function isSurroundedByBoundaries(el: Element): boolean {
+	const parent = el.parentElement;
+	if (!parent) return false;
+	const children = Array.from(parent.childNodes);
+	const idx = children.indexOf(el);
+	if (idx === -1) return false;
+
+	for (let i = 0; i < idx; i++) {
+		const node = children[i];
+		if (node.nodeType === 3) {
+			if (node.textContent && node.textContent.trim().length > 0) return false;
+		} else if (node.nodeType !== 1) {
+			return false;
+		}
+	}
+
+	for (let i = idx + 1; i < children.length; i++) {
+		const node = children[i];
+		if (node.nodeType === 3) {
+			if (node.textContent && node.textContent.trim().length > 0) return false;
+		} else if (node.nodeType !== 1) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function hasTableAncestor(el: Element): boolean {
+	let parent = el.parentElement;
+	while (parent) {
+		const tag = parent.tagName.toLowerCase();
+		if (tag === 'table' || tag === 'tbody' || tag === 'thead' || tag === 'tfoot' || tag === 'tr' || tag === 'td' || tag === 'th') {
+			return true;
+		}
+		parent = parent.parentElement;
+	}
+	return false;
+}
+
+function hasFigureAncestor(el: Element): boolean {
+	let parent = el.parentElement;
+	while (parent) {
+		if (parent.tagName.toLowerCase() === 'figure') return true;
+		parent = parent.parentElement;
+	}
+	return false;
+}
+
+function hasImgSiblings(el: Element): boolean {
+	const parent = el.parentElement;
+	if (!parent) return false;
+	return Array.from(parent.children).some(
+		(child) => child !== el && child.tagName.toLowerCase() === 'img'
+	);
+}
+
+function isInlineImage(img: Element): boolean {
+	// Unconditional triggers: these override the sole-child precondition
+	if (img.closest('pre')) return true;
+
+	const cls = img.getAttribute('class');
+	if (cls) {
+		for (const c of cls.split(/\s+/)) {
+			if (INLINE_CLASS_WHITELIST.has(c)) return true;
+		}
+	}
+
+	// Conditional triggers: require the img to NOT be a sole child of a block element
+	const wrapper = getOutermostWrapper(img);
+	const parent = wrapper.parentElement;
+	if (!parent) return false;
+
+	const tag = parent.tagName.toLowerCase();
+	if (BLOCK_TAGS.has(tag) || tag === 'tr' || tag === 'td' || tag === 'th') {
+		if (isSoleChild(wrapper)) return false;
+	}
+
+	const heightAttr = img.getAttribute('height');
+	if (heightAttr) {
+		const h = parseInt(heightAttr, 10);
+		if (!isNaN(h) && h < 100) return true;
+	}
+
+	const src = img.getAttribute('src') || '';
+	try {
+		const url = new URL(src, 'https://localhost');
+		const hParam = url.searchParams.get('h') || url.searchParams.get('height');
+		if (hParam) {
+			const h = parseInt(hParam, 10);
+			if (!isNaN(h) && h < 100) return true;
+		}
+	} catch {
+		// invalid URL — skip query param check
+	}
+
+	if (INLINE_DIMENSION_RE.test(src)) return true;
+
+	return false;
+}
+
+function isStandaloneImage(img: Element): boolean {
+	if (hasFigureAncestor(img)) return false;
+	if (hasTableAncestor(img)) return false;
+
+	const wrapper = getOutermostWrapper(img);
+	const parent = wrapper.parentElement;
+	if (!parent) return false;
+
+	// Consecutive images are an unhandled case — skip classification
+	if (hasImgSiblings(wrapper)) return false;
+
+	return isSoleChild(wrapper) || isSurroundedByBoundaries(wrapper);
+}
+
+export function classifyImages(html: string): string {
+	if (!html.includes('<img')) return html;
+
+	const doc = new JSDOM(html).window.document;
+	const body = doc.body;
+	const images = Array.from(body.querySelectorAll('img'));
+
+	for (const img of images) {
+		if (isInlineImage(img)) {
+			img.classList.add('inline-image');
+			img.removeAttribute('height');
+			img.removeAttribute('width');
+		} else if (isStandaloneImage(img)) {
+			img.classList.add('standalone-image');
+		}
+	}
+
+	return body.innerHTML;
+}
+
+// ── Public API ──────────────────────────────────────────────────
+
 export function sanitizeHtml(html: string): string {
-	return purify.sanitize(preprocessEmbeds(html), {
+	const preprocessed = preprocessEmbeds(html);
+	const classified = classifyImages(preprocessed);
+	return purify.sanitize(classified, {
 		ALLOWED_TAGS,
 		ALLOWED_ATTR,
 		ALLOW_DATA_ATTR: false,

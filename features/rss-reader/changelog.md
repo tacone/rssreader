@@ -1,3 +1,7 @@
+## 2026-06-07 — atom-one-light / atom-one-dark syntax themes
+
+- style: switched from `github` to `atom-one-light` (default light) + `atom-one-dark` (scoped under `[data-theme="dark"]`) for syntax highlighting theme
+
 ## 2026-06-07 — Language detection from CSS classes, relevance threshold
 
 - feat: `highlightCodeBlocks` checks `<pre>` (and sole-child `<code>`) classes for language hints before `highlightAuto`

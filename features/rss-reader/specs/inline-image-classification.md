@@ -10,13 +10,26 @@ Other readers (Miniflux, NetNewsWire) either ignore the distinction (all images 
 
 ## Classification Order
 
-Checks run in order: **inline first**, then **standalone** on the remaining unclassified images. This naturally handles transparent wrappers — inline-worthy images inside `<a>`, `<span>`, etc. get caught before standalone checks run.
+Checks run in order: **srcset/picture standalone override first**, then **inline**, then **standalone** on the remaining unclassified images.
+
+This naturally handles transparent wrappers — inline-worthy images inside `<a>`, `<span>`, etc. get caught before standalone checks run.
 
 ## Transparent wrappers
 
 When evaluating an `<img>`'s container context, transparent inline wrappers (`<a>`, `<span>`, `<b>`, `<i>`, `<em>`, `<strong>`, etc.) are unwrapped — we walk up through them to find the nearest block-level ancestor as the effective parent.
 
-## Rule 1: Inline images (checked first)
+## Rule 0: Standalone override for srcset/picture (checked first)
+
+An `<img>` is classified as **standalone-image** (overriding all inline checks) if:
+
+- It has a `srcset` attribute, **or**
+- It has a `<picture>` ancestor
+
+**Unless** the `<img>` also has a `<figure>` ancestor — in that case it inherits figure layout and receives no standalone-image class.
+
+This accounts for the fact that responsive images (srcset) and picture elements are always intentional content images, never decorative inline icons.
+
+## Rule 1: Inline images (checked second)
 
 An `<img>` is classified as **inline** if:
 
@@ -35,9 +48,9 @@ If an inline image has visible text content adjacent to it on the same line, add
 - **preceded-by-text**: the image's outer wrapper has at least one preceding sibling (walking through transparent wrappers) that contains non-whitespace text. Scanning stops at `<br>`.
 - **followed-by-text**: same check on following siblings.
 
-## Rule 2: Standalone images (checked second)
+## Rule 2: Standalone images (checked third)
 
-An `<img>` not yet classified as inline is **standalone** if:
+An `<img>` not yet classified by Rule 0 or Rule 1 is **standalone** if:
 
 - It is either:
   - the sole child of its effective parent (after unwrapping transparent wrappers), **or**

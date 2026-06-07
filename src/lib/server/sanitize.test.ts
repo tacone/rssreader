@@ -171,6 +171,7 @@ describe('sanitizeHtml', () => {
 		expect(result).toContain('sizes="(max-width: 600px) 100vw, 50vw"');
 		expect(result).toContain('type="image/webp"');
 		expect(result).toContain('<img src="img.jpg"');
+		expect(result).toContain('class="standalone-image"');
 	});
 
 	it('strips nested dangerous content inside safe elements', () => {
@@ -449,6 +450,30 @@ describe('sanitizeHtml', () => {
 			const result = sanitizeHtml('<p><br><img src="photo.jpg"><br></p>');
 			expect(result).toContain('class="standalone-image"');
 		});
+
+		it('image with srcset attribute is standalone', () => {
+			const result = sanitizeHtml('<img src="photo.jpg" srcset="photo-800.jpg 800w, photo-1200.jpg 1200w" sizes="100vw">');
+			expect(result).toContain('class="standalone-image"');
+			expect(result).toContain('srcset="photo-800.jpg 800w, photo-1200.jpg 1200w"');
+			expect(result).toContain('sizes="100vw"');
+		});
+
+		it('image inside <picture> is standalone', () => {
+			const result = sanitizeHtml('<picture><source srcset="photo.webp" type="image/webp"><img src="photo.jpg" alt="photo"></picture>');
+			expect(result).toContain('class="standalone-image"');
+		});
+
+		it('image with srcset overrides inline classification (height < 100)', () => {
+			const result = sanitizeHtml('<p><img src="icon.svg" height="24" srcset="icon.svg 1x, icon@2x.svg 2x"></p>');
+			expect(result).toContain('class="standalone-image"');
+			// standalone preserves height
+			expect(result).toContain('height="24"');
+		});
+
+		it('image in <picture> that would have been inline becomes standalone', () => {
+			const result = sanitizeHtml('<p><picture><img src="icon.svg" height="24"></picture></p>');
+			expect(result).toContain('class="standalone-image"');
+		});
 	});
 
 	// ── Image classification: NOT standalone ─────────────────────
@@ -462,6 +487,16 @@ describe('sanitizeHtml', () => {
 
 		it('image in <figure> alone is not standalone', () => {
 			const result = sanitizeHtml('<figure><img src="art.jpg"></figure>');
+			expect(result).not.toContain('class="standalone-image"');
+		});
+
+		it('image with srcset in <figure> is not standalone', () => {
+			const result = sanitizeHtml('<figure><img src="art.jpg" srcset="art-800.jpg 800w" sizes="100vw"><figcaption>Desc</figcaption></figure>');
+			expect(result).not.toContain('class="standalone-image"');
+		});
+
+		it('image in <picture> inside <figure> is not standalone', () => {
+			const result = sanitizeHtml('<figure><picture><source srcset="art.webp" type="image/webp"><img src="art.jpg" alt="art"></picture><figcaption>Desc</figcaption></figure>');
 			expect(result).not.toContain('class="standalone-image"');
 		});
 

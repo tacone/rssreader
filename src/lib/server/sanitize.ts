@@ -251,7 +251,10 @@ export function classifyImages(html: string): string {
 	const images = Array.from(body.querySelectorAll('img'));
 
 	for (const img of images) {
-		if (isInlineImage(img)) {
+		const isSrcsetOrPicture = img.hasAttribute('srcset') || img.closest('picture');
+		if (isSrcsetOrPicture && !hasFigureAncestor(img)) {
+			img.classList.add('standalone-image');
+		} else if (isInlineImage(img)) {
 			img.classList.add('inline-image');
 			if (hasAdjacentTextInChain(img, 'preceding')) img.classList.add('preceded-by-text');
 			if (hasAdjacentTextInChain(img, 'following')) img.classList.add('followed-by-text');

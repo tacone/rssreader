@@ -171,12 +171,20 @@ margin-right: 0.3em;
 
 .feed-content figure {
 	max-width: 100%;
-    width: fit-content;
+	width: fit-content;
 	margin: 2em auto;
 	border-radius: 0.5rem;
 	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
 	padding: 2em;
 	text-align: center;
+}
+
+.feed-content figure:has(figcaption) {
+	padding-bottom: 0;
+}
+
+.feed-content figure:has(figcaption) figcaption {
+	margin: 1em 0;
 }
 
 .feed-content figure > img {

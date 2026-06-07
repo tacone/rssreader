@@ -6,9 +6,14 @@
 - #4 - add Vercel's portless (or evaluate): zero-config local HTTPS / port forwarding for dev
 - #5 - investigate full-circle development: end-to-end dev workflow from spec to deploy
 - ~~#6 - fix: dark/light mode icon gets out of sync (use localstorage svelte store)~~
-- #8 - #important investigate feed item sandboxing (should be in a iframe or something similar) and html sanitization (investigate existing software)
-- #9 - investigate double initial image on code horror feed
-- #10 - feed list should handle gracefully missing/unloadable favicons
+- ~~#8 - #important investigate feed item sandboxing (should be in a iframe or something similar) and html sanitization (investigate existing software)~~
+- ~~#9 - investigate double initial image on code horror feed~~
+- ~~#10 - feed list should handle gracefully missing/unloadable favicons~~
 - #11 - investigate existing software: how to they handle inline images?
-- #12 - `<img>` inside `figure` doesn't look right, there's a black background around it
-- #13 - properly style '<figcaption>`
+- ~~#12 - `<img>` inside `figure` doesn't look right, there's a black background around it~~
+- ~~#13 - properly style '<figcaption>`~~
+- #14 - preview a feed before confirming add
+- #15 - reset item-pane vertical scrolling on item display
+- #16 - current selected item row less subtle (add ~4px left margin to each item, accent if selected, otherwise transparent)
+- #17 - feed discovery given the blog url (would open a choose modal if there's more than one)
+- #18 - star button sometimes doesn't seem to be working first try, also sometimes doesn't seem to sync state with the rest of the page

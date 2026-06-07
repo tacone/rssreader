@@ -134,7 +134,7 @@
 
 .feed-content img.standalone-image {
 	display: block;
-	max-width: 85%;
+	max-width: 100%;
 	margin: 2em auto;
 	border-radius: 0.5rem;
 	min-height: 3em;
@@ -162,6 +162,8 @@
 }
 
 .feed-content figure {
+	max-width: 100%;
+    width: fit-content;
 	margin: 2em auto;
 	border-radius: 0.5rem;
 	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
@@ -169,7 +171,9 @@
 	text-align: center;
 }
 
-.feed-content figure img {
+.feed-content figure > img {
+	display: block;
+	width: fit-content;
 	border-radius: 0.5rem;
 	min-height: 3em;
 	object-fit: scale-down;

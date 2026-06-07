@@ -184,18 +184,19 @@ margin-right: 0.3em;
 }
 
 .feed-content figure:has(figcaption) figcaption {
-	margin: 1em 0;
+	margin: 1em 0 1.1em;
 }
 
 .feed-content figure > img {
 	display: block;
-	width: fit-content;
+	/* width: fit-content; */
 	border-radius: 0.5rem;
 	min-height: 3em;
 	object-fit: scale-down;
 }
 
 .feed-content figcaption {
+	display: inline-block;
 	font-size: 0.875em;
 	color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
 	text-align: center;
@@ -215,6 +216,31 @@ margin-right: 0.3em;
 .feed-content video {
 	max-width: 100%;
 	height: auto;
+}
+
+.broken-image {
+	display: inline-block;
+	padding: 1em;
+	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
+}
+
+.broken-standalone-image {
+	display: block;
+}
+
+.broken-image-label {
+	display: block;
+	font-size: 0.75em;
+}
+
+.broken-image-text {
+	display: block;
+	margin-top: 1em;
+	font-style: italic;
+}
+
+.broken-standalone-image .broken-image-text {
+	text-align: center;
 }
 
 .feed-content code {

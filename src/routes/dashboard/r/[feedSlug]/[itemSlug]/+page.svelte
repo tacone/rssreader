@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import RssEmbedHandler from '$lib/components/RssEmbedHandler.svelte';
+	import { brokenImage } from '$lib/actions/brokenImage';
 
 	let { data }: {
 		data: {
@@ -45,7 +46,7 @@
 		</button>
 	</form>
 
-	<div class="feed-content max-w-none">
+	<div class="feed-content max-w-none" use:brokenImage>
 		{@html data.item.content ?? data.item.summary ?? '<p class="text-base-content/40">No content</p>'}
 	</div>
 </article>

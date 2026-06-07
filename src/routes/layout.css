@@ -162,14 +162,25 @@
 }
 
 .feed-content figure {
-	margin: 1em 0;
+	margin: 2em auto;
+	border-radius: 0.5rem;
+	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
+	padding: 2em;
+	text-align: center;
+}
+
+.feed-content figure img {
+	border-radius: 0.5rem;
+	min-height: 3em;
+	object-fit: scale-down;
 }
 
 .feed-content figcaption {
 	font-size: 0.875em;
 	color: var(--color-neutral);
 	text-align: center;
-	margin-top: 0.5em;
+	margin-top: 0.75em;
+	line-height: 1.4;
 }
 
 .feed-content pre {

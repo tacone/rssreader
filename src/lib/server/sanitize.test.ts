@@ -202,48 +202,47 @@ describe('sanitizeHtml', () => {
 	describe('inline image classification', () => {
 		it('classifies by height attribute < 100', () => {
 			const result = sanitizeHtml('<p><img src="x.png" height="16"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 			expect(result).toContain('src="x.png"');
 			expect(result).not.toContain('height="16"');
 		});
 
 		it('height = 99 inline, height = 100 not inline', () => {
 			const r1 = sanitizeHtml('<p><img src="x.png" height="99"> text</p>');
-			expect(r1).toContain('class="inline-image"');
+			expect(r1).toMatch(/class="[^"]*inline-image/);
 
 			const r2 = sanitizeHtml('<p><img src="x.png" height="100"> text</p>');
-			expect(r2).not.toContain('class="inline-image"');
-			// fine to stay default with height preserved
+			expect(r2).not.toContain('class="');
 		});
 
 		it('classifies by querystring h param < 100', () => {
 			const result = sanitizeHtml('<p><img src="x.png?h=24"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 		});
 
 		it('classifies by querystring height param < 100', () => {
 			const result = sanitizeHtml('<p><img src="x.png?height=32"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 		});
 
 		it('classifies by querystring h param among others', () => {
 			const result = sanitizeHtml('<p><img src="x.png?w=800&h=48"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 		});
 
 		it('querystring h >= 100 does not classify as inline', () => {
 			const result = sanitizeHtml('<p><img src="x.png?h=200"> text</p>');
-			expect(result).not.toContain('class="inline-image"');
+			expect(result).not.toContain('class="');
 		});
 
 		it('classifies by dimension pattern in path', () => {
 			const result = sanitizeHtml('<p><img src="https://cdn.example.com/74x43/thumb.jpg"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 		});
 
 		it('classifies by 16x16 pattern in filename', () => {
 			const result = sanitizeHtml('<p><img src="icon-16x16.png"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 		});
 
 		it('classifies by whitelisted class wp-smiley', () => {
@@ -260,20 +259,86 @@ describe('sanitizeHtml', () => {
 
 		it('strips height and width from inline-classified images', () => {
 			const result = sanitizeHtml('<p><img src="x.png" height="24" width="24"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 			expect(result).not.toContain('height="');
 			expect(result).not.toContain('width="');
 		});
 
 		it('inline image inside transparent wrapper (a, span) is classified correctly', () => {
 			const result = sanitizeHtml('<p><a href="/"><img src="icon.svg" height="24"></a> Download</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 			expect(result).not.toContain('height="24"');
 		});
 
 		it('inline image inside span wrapper', () => {
 			const result = sanitizeHtml('<p><span><img src="emoji.png" height="16"></span> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+		});
+	});
+
+	// ── Inline text-adjacency classes ──────────────────────────────
+
+	describe('inline text adjacency (preceded-by-text / followed-by-text)', () => {
+		it('both sides: text on both sides of img', () => {
+			const result = sanitizeHtml('<p>before <img src="x.png" height="16"> after</p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('followed only: text only after img', () => {
+			const result = sanitizeHtml('<p><img src="x.png" height="16"> after</p>');
+			expect(result).not.toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('preceded only: text only before img', () => {
+			const result = sanitizeHtml('<p>before <img src="x.png" height="16"></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).not.toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('both sides: element siblings with text content count', () => {
+			const result = sanitizeHtml('<p><span>a</span><img src="x.png" height="16"><span>b</span></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('<br> stops preceding text scan', () => {
+			const result = sanitizeHtml('<p>Hello<br><img src="x.png" height="16"> world</p>');
+			expect(result).not.toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('text inside element wrapper counts', () => {
+			const result = sanitizeHtml('<p><span>x</span><img src="x.png" height="16"><span>y</span></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('text inside transparent wrapper (a) counts at img level', () => {
+			// "content " prevents a from being sole child of p → img stays inline
+			const result = sanitizeHtml('<p>content <a href="/"><img src="x.png" height="16"><strong>label</strong></a></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('text before transparent wrapper (a) counts at wrapper level', () => {
+			const result = sanitizeHtml('<p>text <a href="/"><img src="x.png" height="16"></a></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).not.toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('text inside wrapper chain counts (span inside a)', () => {
+			// "content " prevents a from being sole child of p → img stays inline
+			const result = sanitizeHtml('<p>content <a href="/"><span><img src="x.png" height="16"> label</span></a></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('whitespace-only text siblings are skipped', () => {
+			const result = sanitizeHtml('<p><span>x</span> <img src="x.png" height="16"> <span>y</span></p>');
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
 		});
 	});
 
@@ -392,7 +457,7 @@ describe('sanitizeHtml', () => {
 		// Direct tests for edge cases that DOMPurify might mangle
 		it('returns HTML with inline-image class for height < 100', () => {
 			const result = classifyImages('<p><img src="x.png" height="16"> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 			expect(result).not.toContain('height="16"');
 		});
 
@@ -409,7 +474,7 @@ describe('sanitizeHtml', () => {
 
 		it('inline inside transparent a wrapper when not sole child', () => {
 			const result = classifyImages('<p><a href="/"><img src="icon.svg" height="24"></a> text</p>');
-			expect(result).toContain('class="inline-image"');
+			expect(result).toMatch(/class="[^"]*inline-image/);
 			expect(result).not.toContain('height="24"');
 		});
 

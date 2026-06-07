@@ -126,6 +126,50 @@ function hasFigureAncestor(el: Element): boolean {
 	return false;
 }
 
+function isInlineWrapper(el: Element | null): boolean {
+	if (!el) return false;
+	return INLINE_WRAPPER_TAGS.has(el.tagName.toLowerCase());
+}
+
+function hasAdjacentText(el: Element, direction: 'preceding' | 'following'): boolean {
+	const parent = el.parentElement;
+	if (!parent) return false;
+
+	const children = Array.from(parent.childNodes);
+	const idx = children.indexOf(el);
+	if (idx === -1) return false;
+
+	const start = direction === 'preceding' ? idx - 1 : idx + 1;
+	const end = direction === 'preceding' ? -1 : children.length;
+	const step = direction === 'preceding' ? -1 : 1;
+
+	for (let i = start; direction === 'preceding' ? i > end : i < end; i += step) {
+		const node = children[i];
+		if (node.nodeType === 3) {
+			if (node.textContent && node.textContent.trim().length > 0) return true;
+		} else if (node.nodeType === 1) {
+			const element = node as Element;
+			if (element.tagName.toLowerCase() === 'br') return false;
+			if (element.textContent && element.textContent.trim().length > 0) return true;
+		}
+	}
+
+	return false;
+}
+
+function hasAdjacentTextInChain(el: Element, direction: 'preceding' | 'following'): boolean {
+	let current: Element | null = el;
+	while (current) {
+		if (hasAdjacentText(current, direction)) return true;
+		if (current.parentElement && isInlineWrapper(current.parentElement)) {
+			current = current.parentElement;
+		} else {
+			break;
+		}
+	}
+	return false;
+}
+
 function hasImgSiblings(el: Element): boolean {
 	const parent = el.parentElement;
 	if (!parent) return false;
@@ -202,6 +246,8 @@ export function classifyImages(html: string): string {
 	for (const img of images) {
 		if (isInlineImage(img)) {
 			img.classList.add('inline-image');
+			if (hasAdjacentTextInChain(img, 'preceding')) img.classList.add('preceded-by-text');
+			if (hasAdjacentTextInChain(img, 'following')) img.classList.add('followed-by-text');
 			img.removeAttribute('height');
 			img.removeAttribute('width');
 		} else if (isStandaloneImage(img)) {

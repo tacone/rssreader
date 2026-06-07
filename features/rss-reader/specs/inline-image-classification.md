@@ -30,6 +30,11 @@ An `<img>` is classified as **inline** if:
 
 Inline images receive the **inline-image class**. At render time the HTML `height` and `width` attributes are stripped and CSS applies `max-height: 1em; vertical-align: middle`.
 
+If an inline image has visible text content adjacent to it on the same line, additional classes are added:
+
+- **preceded-by-text**: the image's outer wrapper has at least one preceding sibling (walking through transparent wrappers) that contains non-whitespace text. Scanning stops at `<br>`.
+- **followed-by-text**: same check on following siblings.
+
 ## Rule 2: Standalone images (checked second)
 
 An `<img>` not yet classified as inline is **standalone** if:

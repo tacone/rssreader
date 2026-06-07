@@ -149,6 +149,14 @@
 	vertical-align: middle;
 }
 
+.feed-content img.inline-image.preceded-by-text {
+margin-left: 0.3em;
+
+}
+.feed-content img.inline-image.followed-by-text {
+margin-right: 0.3em;
+}
+
 .feed-content a > img {
 	text-decoration: underline;
 }

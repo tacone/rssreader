@@ -219,9 +219,10 @@ margin-right: 0.3em;
 }
 
 .broken-image {
-	display: inline-block;
+	display: block;
 	padding: 1em;
 	background: color-mix(in oklch, var(--color-base-content) 8%, transparent);
+	border-radius: 0.5rem;
 }
 
 .broken-standalone-image {
@@ -229,14 +230,25 @@ margin-right: 0.3em;
 }
 
 .broken-image-label {
-	display: block;
+	vertical-align: top;
+	display: inline-block;
 	font-size: 0.75em;
+	color: color-mix(in oklch, var(--color-base-content) 40%, transparent);
+}
+
+a .broken-image-label {
+	text-decoration: none;
+  	text-decoration-skip-ink: auto;
 }
 
 .broken-image-text {
-	display: block;
+	display: inline-block;
+	width: 100%;
+	text-align: center;
 	margin-top: 1em;
 	font-style: italic;
+	color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+	text-decoration-color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
 }
 
 .broken-standalone-image .broken-image-text {

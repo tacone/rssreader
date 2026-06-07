@@ -204,6 +204,11 @@ margin-right: 0.3em;
 	line-height: 1.5;
 }
 
+.feed-content video {
+	max-width: 100%;
+	height: auto;
+}
+
 .feed-content code {
 	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 	font-size: 0.875em;

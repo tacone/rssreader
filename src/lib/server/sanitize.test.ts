@@ -128,6 +128,41 @@ describe('sanitizeHtml', () => {
 		expect(sanitizeHtml(html)).toBe('');
 	});
 
+	it('preserves video elements with controls forced', () => {
+		const html = '<video src="https://example.com/video.mp4" poster="https://example.com/poster.jpg" width="640" height="360"></video>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('<video');
+		expect(result).toContain('controls');
+		expect(result).toContain('src="https://example.com/video.mp4"');
+		expect(result).toContain('poster="https://example.com/poster.jpg"');
+		expect(result).toContain('width="640"');
+		expect(result).toContain('height="360"');
+	});
+
+	it('preserves existing controls attribute on video', () => {
+		const html = '<video src="x.mp4" controls loop></video>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('controls');
+		expect(result).toContain('loop');
+	});
+
+	it('strips autoplay from video elements', () => {
+		const html = '<video src="x.mp4" autoplay muted></video>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('<video');
+		expect(result).toContain('controls');
+		expect(result).not.toContain('autoplay');
+		expect(result).not.toContain('muted');
+	});
+
+	it('preserves source children inside video', () => {
+		const html = '<video controls><source src="x.webm" type="video/webm"><source src="x.mp4" type="video/mp4"></video>';
+		const result = sanitizeHtml(html);
+		expect(result).toContain('<video');
+		expect(result).toContain('<source src="x.webm" type="video/webm">');
+		expect(result).toContain('<source src="x.mp4" type="video/mp4">');
+	});
+
 	it('strips nested dangerous content inside safe elements', () => {
 		const html = '<div><p><script>alert(1)</script></p></div>';
 		expect(sanitizeHtml(html)).toBe('<div><p></p></div>');

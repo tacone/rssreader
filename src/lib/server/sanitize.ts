@@ -13,6 +13,7 @@ const ALLOWED_TAGS = [
 	'i', 'img', 'ins', 'kbd', 'li', 'mark',
 	'ol', 'p', 'pre', 'q',
 	's', 'samp', 'small', 'source', 'span', 'strong', 'sub', 'summary', 'sup',
+	'video',
 	'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr',
 	'u', 'ul', 'var',
 ];
@@ -20,11 +21,12 @@ const ALLOWED_TAGS = [
 const ALLOWED_ATTR = [
 	'abbr', 'alt', 'cite', 'class', 'colspan', 'controls', 'datetime', 'decoding',
 	'height', 'href', 'hreflang', 'loading', 'loop', 'playsinline',
-	'rel', 'rowspan', 'scope', 'src', 'start', 'target', 'title', 'type', 'value', 'width',
+	'poster', 'rel', 'rowspan', 'scope', 'src', 'start', 'target', 'title', 'type', 'value', 'width',
 ];
 
 const YOUTUBE_RE = /<iframe[^>]*src="https?:\/\/(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"]*"[^>]*>[\s\S]*?<\/iframe>/gi;
 const TED_RE = /<iframe[^>]*src="https?:\/\/embed\.ted\.com\/talks\/([^"]+)"[^>]*>[\s\S]*?<\/iframe>/gi;
+const VIDEO_RE = /<video\b([^>]*?)>/gi;
 
 function preprocessEmbeds(html: string): string {
 	html = html.replace(YOUTUBE_RE, (_, videoId) => {
@@ -35,6 +37,11 @@ function preprocessEmbeds(html: string): string {
 	html = html.replace(TED_RE, (_, talkPath) => {
 		const href = `https://embed.ted.com/talks/${talkPath}`;
 		return `<a href="${href}">TED Talk</a>`;
+	});
+	html = html.replace(VIDEO_RE, (match, attrs) => {
+		const clean = attrs.replace(/\/?\s*$/, '');
+		if (/\bcontrols\b/.test(clean)) return match;
+		return `<video ${clean} controls>`;
 	});
 	return html;
 }

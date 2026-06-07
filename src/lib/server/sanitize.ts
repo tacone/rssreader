@@ -268,9 +268,56 @@ export function classifyImages(html: string): string {
 	return body.innerHTML;
 }
 
+// ── Relative URL resolution ────────────────────────────────────
+
+const URL_ATTRS = ['src', 'href', 'poster'];
+
+function resolveUrl(url: string, base: string): string {
+	if (!url) return url;
+	try {
+		return new URL(url, base).href;
+	} catch {
+		return url;
+	}
+}
+
+function resolveSrcset(srcset: string, base: string): string {
+	return srcset
+		.split(',')
+		.map((candidate) => {
+			const parts = candidate.trim().split(/\s+/);
+			if (parts.length === 0) return candidate;
+			parts[0] = resolveUrl(parts[0], base);
+			return parts.join(' ');
+		})
+		.join(', ');
+}
+
+function resolveRelativeUrls(html: string, baseUrl: string): string {
+	if (!html.includes('"') && !html.includes("'")) return html;
+
+	const doc = new JSDOM(html).window.document;
+	const body = doc.body;
+
+	for (const attr of URL_ATTRS) {
+		for (const el of Array.from(body.querySelectorAll(`[${attr}]`))) {
+			const val = el.getAttribute(attr);
+			if (val) el.setAttribute(attr, resolveUrl(val, baseUrl));
+		}
+	}
+
+	for (const el of Array.from(body.querySelectorAll('[srcset]'))) {
+		const val = el.getAttribute('srcset');
+		if (val) el.setAttribute('srcset', resolveSrcset(val, baseUrl));
+	}
+
+	return body.innerHTML;
+}
+
 // ── Public API ──────────────────────────────────────────────────
 
-export function sanitizeHtml(html: string): string {
+export function sanitizeHtml(html: string, baseUrl?: string): string {
+	if (baseUrl) html = resolveRelativeUrls(html, baseUrl);
 	const preprocessed = preprocessEmbeds(html);
 	const classified = classifyImages(preprocessed);
 	return purify.sanitize(classified, {

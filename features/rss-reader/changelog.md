@@ -1,3 +1,16 @@
+## 2026-06-07 — Relative URL resolution at fetch time
+
+- feat: relative URLs in feed content (`src`, `href`, `poster`, `srcset`) resolved against the feed URL at sanitize time — no more broken image/links from relative paths
+- `sanitizeHtml(html, baseUrl?)` accepts optional base URL; store passes the feed URL
+
+## 2026-06-07 — Atom date fallback, broken image replacement, figcaption
+
+- fix: Atom entries with only `<updated>` (no `<published>`) now get a date — fall back to `updated`, or use the earlier of both when present (jvns.ca feed)
+- feat: broken images replaced client-side with a structured `.broken-image` placeholder showing "broken image" label + alt text; standalone images get `.broken-standalone-image` (block, centered)
+- feat: `brokenImage` Svelte action with MutationObserver — handles `{@html}` content updates
+- style: figcaption uses `color-mix(--color-base-content 60%)` instead of `--color-neutral` (was invisible in some themes)
+- style: figure with figcaption gets no bottom padding; figcaption gets `margin: 1em 0`
+
 ## 2026-06-07 — picture/srcset unconditional standalone, video, text-adjacency, figure styling
 
 - feat: images with `srcset` attribute or inside `<picture>` are always standalone (unless inside `<figure>`), overriding inline triggers

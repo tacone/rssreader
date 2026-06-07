@@ -77,7 +77,7 @@ export async function upsertFeed(
 			summary = null;
 		}
 
-		const content = rawContent ? sanitizeHtml(rawContent) : null;
+		const content = rawContent ? sanitizeHtml(rawContent, url) : null;
 
 		await db
 			.insert(itemsTable)

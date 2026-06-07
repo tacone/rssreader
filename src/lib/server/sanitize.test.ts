@@ -564,4 +564,68 @@ describe('sanitizeHtml', () => {
 			expect(result).toContain('height="400"');
 		});
 	});
+
+	// ── Relative URL resolution ─────────────────────────────────
+
+	describe('relative URL resolution', () => {
+		it('resolves relative img src', () => {
+			const result = sanitizeHtml('<img src="/images/photo.jpg" alt="photo">', 'https://example.com/blog');
+			expect(result).toContain('src="https://example.com/images/photo.jpg"');
+		});
+
+		it('resolves relative a href', () => {
+			const result = sanitizeHtml('<a href="/article">link</a>', 'https://example.com/blog');
+			expect(result).toContain('href="https://example.com/article"');
+		});
+
+		it('resolves relative video src and poster', () => {
+			const result = sanitizeHtml('<video src="/videos/clip.mp4" poster="/thumbs/clip.jpg"></video>', 'https://example.com');
+			expect(result).toContain('src="https://example.com/videos/clip.mp4"');
+			expect(result).toContain('poster="https://example.com/thumbs/clip.jpg"');
+		});
+
+		it('does not modify absolute URLs', () => {
+			const result = sanitizeHtml('<img src="https://cdn.example.com/photo.jpg" alt="">', 'https://example.com');
+			expect(result).toContain('src="https://cdn.example.com/photo.jpg"');
+		});
+
+		it('does not modify data URIs', () => {
+			const result = sanitizeHtml('<img src="data:image/svg+xml,%3Csvg..." alt="">', 'https://example.com');
+			expect(result).toContain('src="data:image/svg+xml,%3Csvg..."');
+		});
+
+		it('resolves srcset URLs', () => {
+			const result = sanitizeHtml('<img src="photo.jpg" srcset="photo-800.jpg 800w, photo-1200.jpg 1200w" sizes="100vw">', 'https://example.com/blog/');
+			expect(result).toContain('srcset="https://example.com/blog/photo-800.jpg 800w, https://example.com/blog/photo-1200.jpg 1200w"');
+		});
+
+		it('resolves srcset with 1x/2x descriptors', () => {
+			const result = sanitizeHtml('<img src="icon.svg" srcset="icon.svg 1x, icon@2x.svg 2x">', 'https://example.com/images/');
+			expect(result).toContain('srcset="https://example.com/images/icon.svg 1x, https://example.com/images/icon@2x.svg 2x"');
+		});
+
+		it('resolves source srcset inside picture', () => {
+			const result = sanitizeHtml('<picture><source srcset="photo.webp" type="image/webp"><img src="photo.jpg" alt="photo"></picture>', 'https://example.com');
+			expect(result).toContain('srcset="https://example.com/photo.webp"');
+		});
+
+		it('resolves relative URLs without baseUrl (no change)', () => {
+			const result = sanitizeHtml('<img src="/images/photo.jpg" alt="photo">');
+			expect(result).toContain('src="/images/photo.jpg"');
+		});
+
+		it('resolves relative path without leading slash', () => {
+			const result = sanitizeHtml('<img src="images/photo.jpg" alt="photo">', 'https://example.com/blog/');
+			expect(result).toContain('src="https://example.com/blog/images/photo.jpg"');
+		});
+
+		it('handles empty html', () => {
+			expect(sanitizeHtml('', 'https://example.com')).toBe('');
+		});
+
+		it('handles html with no URLs', () => {
+			const result = sanitizeHtml('<p>Hello world</p>', 'https://example.com');
+			expect(result).toBe('<p>Hello world</p>');
+		});
+	});
 });

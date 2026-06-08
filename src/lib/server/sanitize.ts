@@ -452,7 +452,7 @@ const MINIFY_OPTIONS:Options = {
 };
 
 // minification makes the process ~30% slower (e.g. from 36s to 48s)
-const MINIFY_HTML = true;
+const MINIFY_HTML = false;
 
 // ── Public API ──────────────────────────────────────────────────
 

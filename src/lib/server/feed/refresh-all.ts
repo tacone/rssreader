@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../db/schema';
 import { fetchFeed } from './fetch';
 import { upsertFeed } from './store';
+import { detectPartialFeed } from './detect-partial';
 import { eq } from 'drizzle-orm';
 
 async function main() {
@@ -62,6 +63,22 @@ async function main() {
 				});
 				if (result.items.length > 0 || result.meta.title) {
 					const { newItemCount } = await upsertFeed(db, user.id, feed.url, result);
+
+					if (force) {
+						try {
+							const isPartial = await detectPartialFeed(feed.url, result.items);
+							await db
+								.update(schema.feeds)
+								.set({ isPartialFeed: isPartial ? 1 : 0 })
+								.where(eq(schema.feeds.id, feed.id));
+							if (isPartial) {
+								console.log(`  partial: ${feed.title || feed.url}`);
+							}
+						} catch (e) {
+							console.error(`  detect-err: ${feed.title || feed.url} — ${e instanceof Error ? e.message : e}`);
+						}
+					}
+
 					console.log(`  OK: ${feed.title || feed.url} (${newItemCount} new items)`);
 					refreshed++;
 				} else {

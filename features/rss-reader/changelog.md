@@ -1,5 +1,7 @@
-## 2026-06-08 — Auto-detection restricted to common + svelte, no standalone images in tables
+## 2026-06-08 — Standalone image width expansion, <mark> styling, auto-detection restricted
 
+- feat: new `expandStandaloneImages` action drops `width`/`height` on standalone images when their `naturalWidth` exceeds the declared width
+- style: `.feed-content mark` styled with yellow highlight background
 - feat: `AUTO_LANGUAGES` constant restricts `highlightAuto` to 37 languages (hljs "common" subset + svelte) instead of all ~197 — faster, fewer false positives
 - fix: images with `srcset` or inside `<picture>` no longer classified as standalone when inside a `<table>` — `hasTableAncestor` check added to the srcset/picture override path
 

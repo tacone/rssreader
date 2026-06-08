@@ -184,6 +184,11 @@
 	font-weight: 600;
 }
 
+.feed-content mark {
+	background-color: rgba(255, 255, 0, 0.3);
+	color: var(--color-base-content);
+}
+
 .feed-content blockquote {
 	border-left: 8px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
 	padding-left: 1em;

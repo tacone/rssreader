@@ -3,7 +3,7 @@
 - #1 - feed item CSS: content styling for article body (typography, spacing, images, code blocks)
 - #2 - hosted fonts: choose and integrate a typeface (self-hosted vs Google Fonts vs variable font)
 - #3 - design system refinement: consistent spacing, color tokens, component API, dark mode polish
-- #4 - add Vercel's portless (or evaluate): zero-config local HTTPS / port forwarding for dev
+- ~~#4 - add Vercel's portless (or evaluate): zero-config local HTTPS / port forwarding for dev~~
 - #5 - investigate full-circle development: end-to-end dev workflow from spec to deploy
 - ~~#6 - fix: dark/light mode icon gets out of sync (use localstorage svelte store)~~
 - ~~#8 - #important investigate feed item sandboxing (should be in a iframe or something similar) and html sanitization (investigate existing software)~~
@@ -17,3 +17,9 @@
 - #16 - current selected item row less subtle (add ~4px left margin to each item, accent if selected, otherwise transparent)
 - #17 - feed discovery given the blog url (would open a choose modal if there's more than one)
 - #18 - star button sometimes doesn't seem to be working first try, also sometimes doesn't seem to sync state with the rest of the page
+- ~~#19 - syntax highlight code blocks~~
+- #20 - do not rewrite hash links as absolute links (what do to?)
+- ~~#21 - restrict auto-detection to common + svelte languages (was: "remove highlight.js support for exotic languages")~~
+- ~~#22 - img as sole child of p as sole child of td/th should not be standalone. even better: img should never be standalone if any ancestor is a table~~
+- ~~#23 - style `<mark>` (background opacity)~~
+- #24 - create standalone-video (applies also to youtube)

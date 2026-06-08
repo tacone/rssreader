@@ -3,6 +3,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import RssEmbedHandler from '$lib/components/RssEmbedHandler.svelte';
 	import { brokenImage } from '$lib/actions/brokenImage';
+	import { expandStandaloneImages } from '$lib/actions/expandStandaloneImages';
 
 	let { data }: {
 		data: {
@@ -46,7 +47,7 @@
 		</button>
 	</form>
 
-	<div class="feed-content max-w-none" use:brokenImage>
+	<div class="feed-content max-w-none" use:brokenImage use:expandStandaloneImages>
 		{@html data.item.content ?? data.item.summary ?? '<p class="text-base-content/40">No content</p>'}
 	</div>
 </article>

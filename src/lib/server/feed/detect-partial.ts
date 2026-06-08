@@ -72,7 +72,7 @@ export async function detectPartialFeed(
 			// Length comparison: extracted page text significantly larger than feed text
 			const lengthMatch = compareContentLength(extractedText, feedTextContent);
 
-			// Image heuristic: if feed item contains images, also verify they appear in the page
+			// Image heuristic: if feed item contains images, they must also appear in the page
 			const feedImages = extractImageBasenames(feedText);
 			const imageMatch = feedImages.length > 0 && imagesMatchPage(feedImages, html);
 			const imageOk = feedImages.length === 0 || imageMatch;

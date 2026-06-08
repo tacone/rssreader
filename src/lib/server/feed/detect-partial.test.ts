@@ -193,7 +193,8 @@ describe('detectPartialFeed', () => {
 		expect(result).toBe(true);
 	});
 
-	it('requires image basenames to appear in page when feed has images (AND logic)', async () => {
+	it('requires feed images to be found in page when feed has images (AND logic)', async () => {
+		const longText = 'Article content. '.repeat(200);
 		mockFetch.mockResolvedValue({
 			ok: true,
 			text: () => Promise.resolve(`<!DOCTYPE html>
@@ -201,19 +202,17 @@ describe('detectPartialFeed', () => {
 <body>
 <article>
 <h1>Full Article</h1>
-<p>This article contains a lot of text that is significantly longer than the summary provided in the feed. The detection algorithm should compare the extracted text length against the feed content length and determine whether this is a partial feed.</p>
-<p>More text here to ensure the length difference is clearly above the threshold of double the size. We need at least 500 characters more than the feed text as well.</p>
+<p>${longText}</p>
 </article>
 </body></html>`)
 		});
 
-		// Feed has images but they are NOT found in page HTML
+		// Feed has images, length differs, but images NOT in page → no match
 		const items = [
-			{ url: 'https://example.com/1', content: '<img src="thumbnail.jpg"><p>short summary</p>' },
-			{ url: 'https://example.com/2', content: '<img src="thumbnail.jpg"><p>short summary</p>' },
-			{ url: 'https://example.com/3', content: '<img src="thumbnail.jpg"><p>short summary</p>' }
+			{ url: 'https://example.com/1', content: '<img src="thumbnail.jpg"><p>short</p>' },
+			{ url: 'https://example.com/2', content: '<img src="thumbnail.jpg"><p>short</p>' },
+			{ url: 'https://example.com/3', content: '<img src="thumbnail.jpg"><p>short</p>' }
 		];
-		// Length differs but images not found in page → no match due to AND logic
 		const result = await detectPartialFeed('https://feed.example.com', items);
 		expect(result).toBe(false);
 	});

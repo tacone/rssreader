@@ -66,13 +66,13 @@ async function main() {
 
 					if (force) {
 						try {
-							const isPartial = await detectPartialFeed(feed.url, result.items);
+							const isPartial = await detectPartialFeed(feed.url, result.items, (msg) => console.log(`  detect: ${msg}`));
 							await db
 								.update(schema.feeds)
 								.set({ isPartialFeed: isPartial ? 1 : 0 })
 								.where(eq(schema.feeds.id, feed.id));
 							if (isPartial) {
-								console.log(`  partial: ${feed.title || feed.url}`);
+								console.log(`  → PARTIAL FEED`);
 							}
 						} catch (e) {
 							console.error(`  detect-err: ${feed.title || feed.url} — ${e instanceof Error ? e.message : e}`);

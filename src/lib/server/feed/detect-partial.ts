@@ -9,7 +9,7 @@ const IMG_RE = /<img[^>]+src\s*=\s*["']([^"']+)["']/gi;
 const MARKDOWN_IMG_RE = /!\[.*?\]\(([^)]+)\)/g;
 
 /** Extract image filenames (basenames) from HTML or markdown content. */
-function extractImageBasenames(html: string): string[] {
+export function extractImageBasenames(html: string): string[] {
 	const basenames = new Set<string>();
 
 	let match: RegExpExecArray | null;
@@ -26,7 +26,7 @@ function extractImageBasenames(html: string): string[] {
 }
 
 /** Check if any of the given image basenames appear in the page HTML. */
-function imagesMatchPage(imageBasenames: string[], pageHtml: string): boolean {
+export function imagesMatchPage(imageBasenames: string[], pageHtml: string): boolean {
 	return imageBasenames.some((name) => name.length > 3 && pageHtml.includes(name));
 }
 
@@ -194,4 +194,7 @@ async function main() {
 	}
 }
 
-main();
+const isMain = process.argv[1]?.includes('detect-partial');
+if (isMain) {
+	main();
+}

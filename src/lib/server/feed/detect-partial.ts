@@ -5,6 +5,31 @@ import * as schema from '../db/schema';
 import { fetchFeed } from './fetch';
 import { extractFromPage, compareContentLength, getTextContent } from './extract';
 
+const IMG_RE = /<img[^>]+src\s*=\s*["']([^"']+)["']/gi;
+const MARKDOWN_IMG_RE = /!\[.*?\]\(([^)]+)\)/g;
+
+/** Extract image filenames (basenames) from HTML or markdown content. */
+function extractImageBasenames(html: string): string[] {
+	const basenames = new Set<string>();
+
+	let match: RegExpExecArray | null;
+	while ((match = IMG_RE.exec(html)) !== null) {
+		const basename = match[1].split('/').pop()?.split('?')[0] ?? '';
+		if (basename) basenames.add(basename);
+	}
+	while ((match = MARKDOWN_IMG_RE.exec(html)) !== null) {
+		const basename = match[1].split('/').pop()?.split('?')[0] ?? '';
+		if (basename) basenames.add(basename);
+	}
+
+	return [...basenames];
+}
+
+/** Check if any of the given image basenames appear in the page HTML. */
+function imagesMatchPage(imageBasenames: string[], pageHtml: string): boolean {
+	return imageBasenames.some((name) => name.length > 3 && pageHtml.includes(name));
+}
+
 export async function detectPartialFeed(
 	feedUrl: string,
 	items: Array<{ url?: string; content?: string; summary?: string }>,
@@ -44,11 +69,23 @@ export async function detectPartialFeed(
 			const feedTextContent = getTextContent(feedText);
 			const extractedText = getTextContent(content);
 
-			if (compareContentLength(extractedText, feedTextContent)) {
+			// Length comparison: extracted page text significantly larger than feed text
+			const lengthMatch = compareContentLength(extractedText, feedTextContent);
+
+			// Image heuristic: if feed item contains images, check they appear in the page HTML
+			const feedImages = extractImageBasenames(feedText);
+			const imageMatch = feedImages.length > 0 && imagesMatchPage(feedImages, html);
+
+			const matched = lengthMatch || imageMatch;
+
+			if (matched) {
 				matches++;
-				logMsg(`  detection: MATCH (feed:${feedTextContent.length}, extracted:${extractedText.length}) — ${item.url}`);
+				const reasons: string[] = [];
+				if (lengthMatch) reasons.push(`length:${feedTextContent.length}→${extractedText.length}`);
+				if (imageMatch) reasons.push(`images:${feedImages.join(',')}`);
+				logMsg(`  detection: MATCH (${reasons.join('; ')}) — ${item.url}`);
 			} else {
-				logMsg(`  detection: no match (feed:${feedTextContent.length}, extracted:${extractedText.length}) — ${item.url}`);
+				logMsg(`  detection: no match (length:${feedTextContent.length}→${extractedText.length}) — ${item.url}`);
 			}
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);

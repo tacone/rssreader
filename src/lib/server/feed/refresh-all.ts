@@ -62,15 +62,11 @@ async function main() {
 					lastModified: feed.lastModified ?? undefined,
 				});
 				if (result.items.length > 0 || result.meta.title) {
-					const { newItemCount } = await upsertFeed(db, user.id, feed.url, result);
+					let isPartial: boolean | undefined;
 
 					if (force) {
 						try {
-							const isPartial = await detectPartialFeed(feed.url, result.items, (msg) => console.log(`  detect: ${msg}`));
-							await db
-								.update(schema.feeds)
-								.set({ isPartialFeed: isPartial ? 1 : 0 })
-								.where(eq(schema.feeds.id, feed.id));
+							isPartial = await detectPartialFeed(feed.url, result.items, (msg) => console.log(`  detect: ${msg}`));
 							if (isPartial) {
 								console.log(`  → PARTIAL FEED`);
 							}
@@ -78,6 +74,8 @@ async function main() {
 							console.error(`  detect-err: ${feed.title || feed.url} — ${e instanceof Error ? e.message : e}`);
 						}
 					}
+
+					const { newItemCount } = await upsertFeed(db, user.id, feed.url, result, isPartial);
 
 					console.log(`  OK: ${feed.title || feed.url} (${newItemCount} new items)`);
 					refreshed++;

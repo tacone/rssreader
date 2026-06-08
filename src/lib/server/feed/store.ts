@@ -15,7 +15,8 @@ export async function upsertFeed(
 	db: DB,
 	userId: string,
 	url: string,
-	fetchResult: FetchResult
+	fetchResult: FetchResult,
+	isPartialFeed?: boolean
 ) {
 	const existing = await db
 		.select()
@@ -28,19 +29,23 @@ export async function upsertFeed(
 	if (existing.length > 0) {
 		feedId = existing[0].id;
 		const slug = existing[0].slug || generateSlug(feedId, fetchResult.meta.title, url);
+		const updateData: Record<string, unknown> = {
+			slug,
+			title: fetchResult.meta.title,
+			description: fetchResult.meta.description,
+			siteUrl: fetchResult.meta.link,
+			icon: fetchResult.meta.image,
+			etag: fetchResult.etag,
+			lastModified: fetchResult.lastModified,
+			lastFetchedAt: sql`now()`,
+			errorCount: 0
+		};
+		if (isPartialFeed !== undefined) {
+			updateData.isPartialFeed = isPartialFeed ? 1 : 0;
+		}
 		await db
 			.update(feedsTable)
-			.set({
-				slug,
-				title: fetchResult.meta.title,
-				description: fetchResult.meta.description,
-				siteUrl: fetchResult.meta.link,
-				icon: fetchResult.meta.image,
-				etag: fetchResult.etag,
-				lastModified: fetchResult.lastModified,
-				lastFetchedAt: sql`now()`,
-				errorCount: 0
-			})
+			.set(updateData)
 			.where(eq(feedsTable.id, feedId));
 	} else {
 		feedId = randomUUID();
@@ -56,7 +61,8 @@ export async function upsertFeed(
 			icon: fetchResult.meta.image,
 			etag: fetchResult.etag,
 			lastModified: fetchResult.lastModified,
-			lastFetchedAt: sql`now()`
+			lastFetchedAt: sql`now()`,
+			isPartialFeed: isPartialFeed ? 1 : 0
 		});
 	}
 
@@ -114,14 +120,14 @@ export async function upsertFeed(
 	}
 
 	// For partial feeds, fetch raw_page_content for items that don't have it yet
-	const feed = await db
+	const shouldFetch = isPartialFeed ?? (await db
 		.select({ isPartialFeed: feedsTable.isPartialFeed })
 		.from(feedsTable)
 		.where(eq(feedsTable.id, feedId))
 		.limit(1)
-		.then((r) => r[0]);
+		.then((r) => r[0]))?.isPartialFeed;
 
-	if (feed?.isPartialFeed) {
+	if (shouldFetch) {
 		await fetchPageContent(db, feedId, newItems);
 	}
 

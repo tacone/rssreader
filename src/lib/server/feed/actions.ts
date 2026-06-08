@@ -29,22 +29,18 @@ export async function addFeed(userId: string, url: string) {
 	if (fetchResult.items.length === 0 && !fetchResult.meta.title)
 		return fail(422, { message: 'No feed found at this URL' });
 
-	await upsertFeed(db, userId, url, fetchResult);
-
-	// Detect if this is a partial feed by comparing first 5 articles
+	// Detect before upsert so items get page-fetched immediately
+	let isPartial: boolean | undefined;
 	try {
-		const isPartial = await detectPartialFeed(url, fetchResult.items);
-		await db
-			.update(feedsTable)
-			.set({ isPartialFeed: isPartial ? 1 : 0 })
-			.where(and(eq(feedsTable.userId, userId), eq(feedsTable.url, url)));
-
+		isPartial = await detectPartialFeed(url, fetchResult.items);
 		if (isPartial) {
 			console.log(`[addFeed] ${url} — marked as partial feed`);
 		}
 	} catch (e) {
 		console.log(`[addFeed] detection error for ${url}: ${e instanceof Error ? e.message : e}`);
 	}
+
+	await upsertFeed(db, userId, url, fetchResult, isPartial);
 
 	return { success: 'Feed added' };
 }

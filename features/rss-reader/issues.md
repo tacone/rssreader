@@ -23,3 +23,4 @@
 - ~~#22 - img as sole child of p as sole child of td/th should not be standalone. even better: img should never be standalone if any ancestor is a table~~
 - ~~#23 - style `<mark>` (background opacity)~~
 - #24 - create standalone-video (applies also to youtube)
+- #25 - should we just strip existing markup from <pre> content?

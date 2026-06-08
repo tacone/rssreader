@@ -2,6 +2,14 @@ import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import hljs from 'highlight.js';
 
+const AUTO_LANGUAGES = [
+	'bash', 'c', 'cpp', 'csharp', 'css', 'diff', 'go', 'graphql', 'ini',
+	'java', 'javascript', 'json', 'kotlin', 'less', 'lua', 'makefile',
+	'markdown', 'objectivec', 'perl', 'php', 'php-template', 'plaintext',
+	'python', 'python-repl', 'r', 'ruby', 'rust', 'scss', 'shell', 'sql',
+	'svelte', 'swift', 'typescript', 'vbnet', 'wasm', 'xml', 'yaml',
+];
+
 const window = new JSDOM('').window;
 const purify = createDOMPurify(window);
 
@@ -402,7 +410,7 @@ function highlightCodeBlocks(html: string): string {
 			highlighted.relevance = EXPLICIT_RELEVANCE;
 			doHighlight = true;
 		} else {
-			highlighted = hljs.highlightAuto(codeText);
+			highlighted = hljs.highlightAuto(codeText, AUTO_LANGUAGES);
 			doHighlight = highlighted.relevance >= MIN_AUTO_RELEVANCE;
 		}
 

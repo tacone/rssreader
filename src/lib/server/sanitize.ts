@@ -1,6 +1,7 @@
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import hljs from 'highlight.js';
+import { minify } from 'html-minifier-terser';
 
 const AUTO_LANGUAGES = [
 	'bash', 'c', 'cpp', 'csharp', 'css', 'diff', 'go', 'graphql', 'ini',
@@ -436,18 +437,31 @@ function highlightCodeBlocks(html: string): string {
 	return body.innerHTML;
 }
 
+// ── HTML minification ───────────────────────────────────────────
+
+const MINIFY_OPTIONS = {
+	collapseWhitespace: true,
+	removeComments: true,
+	collapseBooleanAttributes: true,
+	removeEmptyAttributes: true,
+	decodeEntities: true,
+	ignoreCustomFragments: [/srcset="[^"]*"/g],
+};
+
 // ── Public API ──────────────────────────────────────────────────
 
-export function sanitizeHtml(html: string, baseUrl?: string): string {
+export async function sanitizeHtml(html: string, baseUrl?: string): Promise<string> {
+	if (!html) return '';
 	if (baseUrl) html = resolveRelativeUrls(html, baseUrl);
 	html = highlightCodeBlocks(html);
 	const preprocessed = preprocessEmbeds(html);
 	const classified = classifyImages(preprocessed);
-	return purify.sanitize(classified, {
+	const sanitized = purify.sanitize(classified, {
 		ALLOWED_TAGS,
 		ALLOWED_ATTR,
 		ALLOW_DATA_ATTR: false,
 		ADD_ATTR: ['data-provider', 'data-videoid', 'data-relevance'],
 		ALLOW_UNKNOWN_PROTOCOLS: false,
 	});
+	return minify(sanitized, MINIFY_OPTIONS);
 }

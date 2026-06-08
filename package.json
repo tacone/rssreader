@@ -23,7 +23,7 @@
 		"auth:schema": "better-auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes",
 		"feeds:fetch": "bun run src/lib/server/feed/cli.ts",
 		"feeds:refresh-all": "bun run src/lib/server/feed/refresh-all.ts",
-"feeds:recompute-all": "bun run src/lib/server/feed/recompute-all.ts",
+		"feeds:recompute-all": "bun run src/lib/server/feed/recompute-all.ts",
 		"seeds:create": "bun run src/lib/server/seed/create-user.ts"
 	},
 	"devDependencies": {
@@ -36,6 +36,7 @@
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/dompurify": "^3.2.0",
 		"@types/he": "^1.2.3",
+		"@types/html-minifier-terser": "^7.0.2",
 		"@types/jsdom": "^28.0.3",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.1.3",
@@ -69,6 +70,7 @@
 		"feedsmith": "^2.9.4",
 		"he": "^1.2.0",
 		"highlight.js": "^11.11.1",
+		"html-minifier-terser": "^7.2.0",
 		"jsdom": "^29.1.1"
 	}
 }

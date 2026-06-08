@@ -72,7 +72,7 @@ async function main() {
 					summary = null;
 				}
 
-				const content = item.rawContent ? sanitizeHtml(item.rawContent, feed.url) : null;
+				const content = item.rawContent ? await sanitizeHtml(item.rawContent, feed.url) : null;
 
 				await db
 					.update(schema.items)

@@ -7,6 +7,7 @@
 - style: item rows gain `ml-1 border-l-4` with `border-l-accent` for selected, `border-l-transparent` otherwise (#16)
 - fix: item detail pane scrolls to top on navigation between items (#15)
 - fix: SVG images alongside text in `<p>` are now classified as inline-image
+- feat: HTML minification via `html-minifier-terser` at sanitize time — `collapseWhitespace`, `removeComments`, `collapseBooleanAttributes`, `removeEmptyAttributes`, `decodeEntities`; `srcset` values preserved via `ignoreCustomFragments`
 
 ## 2026-06-07 — atom-one-light / atom-one-dark syntax themes
 

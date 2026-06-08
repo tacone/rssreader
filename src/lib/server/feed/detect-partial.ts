@@ -72,20 +72,22 @@ export async function detectPartialFeed(
 			// Length comparison: extracted page text significantly larger than feed text
 			const lengthMatch = compareContentLength(extractedText, feedTextContent);
 
-			// Image heuristic: if feed item contains images, check they appear in the page HTML
+			// Image heuristic: if feed item contains images, also verify they appear in the page
 			const feedImages = extractImageBasenames(feedText);
 			const imageMatch = feedImages.length > 0 && imagesMatchPage(feedImages, html);
+			const imageOk = feedImages.length === 0 || imageMatch;
 
-			const matched = lengthMatch || imageMatch;
+			const matched = lengthMatch && imageOk;
 
 			if (matched) {
 				matches++;
-				const reasons: string[] = [];
-				if (lengthMatch) reasons.push(`length:${feedTextContent.length}→${extractedText.length}`);
-				if (imageMatch) reasons.push(`images:${feedImages.join(',')}`);
-				logMsg(`  detection: MATCH (${reasons.join('; ')}) — ${item.url}`);
+				const info = `length:${feedTextContent.length}→${extractedText.length}`;
+				const img = imageMatch ? ` img:${feedImages.join(',')}` : '';
+				logMsg(`  detection: MATCH (${info}${img}) — ${item.url}`);
 			} else {
-				logMsg(`  detection: no match (length:${feedTextContent.length}→${extractedText.length}) — ${item.url}`);
+				const info = `length:${feedTextContent.length}→${extractedText.length}`;
+				const img = feedImages.length > 0 ? ` img-in-page:${imageMatch}` : '';
+				logMsg(`  detection: no match (${info}${img}) — ${item.url}`);
 			}
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);

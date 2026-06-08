@@ -11,6 +11,17 @@
 		}
 	} = $props();
 
+	$effect(() => {
+		data.item.id;
+		queueMicrotask(() => {
+			const el = document.querySelector('.feed-content');
+			if (el) {
+				const scrollable = (el as HTMLElement).closest('.overflow-y-auto');
+				if (scrollable) scrollable.scrollTop = 0;
+			}
+		});
+	});
+
 	function handleEnhance() {
 		invalidateAll();
 		return () => {};

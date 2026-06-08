@@ -73,7 +73,7 @@
 			<ul class="flex flex-col gap-1">
 				{#each data.feeds as feed (feed.id)}
 					<li>
-						<a href="/dashboard/r/{feed.slug}" class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-base-300 {($page.url.pathname + $page.url.search).includes(feed.slug) ? 'bg-base-300' : ''}">
+						<a href="/dashboard/r/{feed.slug}" class="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-base-300 border-l border-l-transparent pl-3 {($page.url.pathname + $page.url.search).includes(feed.slug) ? 'bg-base-300 border-l-accent!' : ''}">
 							<span class="inline-block size-4 shrink-0">
 								{#if feed.icon}
 									<img src={feed.icon} alt="" class="size-4 rounded" onerror={e => (e.currentTarget as HTMLImageElement).hidden = true} />

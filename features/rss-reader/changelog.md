@@ -4,6 +4,9 @@
 - style: `.feed-content mark` styled with yellow highlight background
 - feat: `AUTO_LANGUAGES` constant restricts `highlightAuto` to 37 languages (hljs "common" subset + svelte) instead of all ~197 — faster, fewer false positives
 - fix: images with `srcset` or inside `<picture>` no longer classified as standalone when inside a `<table>` — `hasTableAncestor` check added to the srcset/picture override path
+- style: item rows gain `ml-1 border-l-4` with `border-l-accent` for selected, `border-l-transparent` otherwise (#16)
+- fix: item detail pane scrolls to top on navigation between items (#15)
+- fix: SVG images alongside text in `<p>` are now classified as inline-image
 
 ## 2026-06-07 — atom-one-light / atom-one-dark syntax themes
 

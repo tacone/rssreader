@@ -13,8 +13,8 @@
 - ~~#12 - `<img>` inside `figure` doesn't look right, there's a black background around it~~
 - ~~#13 - properly style '<figcaption>`~~
 - #14 - preview a feed before confirming add
-- #15 - reset item-pane vertical scrolling on item display
-- #16 - current selected item row less subtle (add ~4px left margin to each item, accent if selected, otherwise transparent)
+- ~~#15 - reset item-pane vertical scrolling on item display~~
+- ~~#16 - current selected item row less subtle (add ~4px left margin, border-l-accent if selected, border-l-transparent otherwise)~~
 - #17 - feed discovery given the blog url (would open a choose modal if there's more than one)
 - #18 - star button sometimes doesn't seem to be working first try, also sometimes doesn't seem to sync state with the rest of the page
 - ~~#19 - syntax highlight code blocks~~

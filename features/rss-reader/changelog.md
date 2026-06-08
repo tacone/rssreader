@@ -1,3 +1,8 @@
+## 2026-06-08 — Auto-detection restricted to common + svelte, no standalone images in tables
+
+- feat: `AUTO_LANGUAGES` constant restricts `highlightAuto` to 37 languages (hljs "common" subset + svelte) instead of all ~197 — faster, fewer false positives
+- fix: images with `srcset` or inside `<picture>` no longer classified as standalone when inside a `<table>` — `hasTableAncestor` check added to the srcset/picture override path
+
 ## 2026-06-07 — atom-one-light / atom-one-dark syntax themes
 
 - style: switched from `github` to `atom-one-light` (default light) + `atom-one-dark` (scoped under `[data-theme="dark"]`) for syntax highlighting theme

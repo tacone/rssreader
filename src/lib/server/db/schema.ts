@@ -32,6 +32,7 @@ export const feeds = pgTable(
 		lastModified: text('last_modified'),
 		lastFetchedAt: timestamp('last_fetched_at'),
 		errorCount: integer('error_count').notNull().default(0),
+		isPartialFeed: integer('is_partial_feed').notNull().default(0),
 		createdAt: timestamp('created_at').defaultNow().notNull()
 	},
 	(table) => [
@@ -62,7 +63,10 @@ export const items = pgTable(
 		publishedAt: timestamp('published_at'),
 		fetchedAt: timestamp('fetched_at').defaultNow().notNull(),
 		isRead: boolean('is_read').notNull().default(false),
-		isStarred: boolean('is_starred').notNull().default(false)
+		isStarred: boolean('is_starred').notNull().default(false),
+		rawPageContent: text('raw_page_content'),
+		rawPageError: integer('raw_page_error'),
+		notRenderable: integer('not_renderable').notNull().default(0)
 	},
 	(table) => [
 		uniqueIndex('items_feed_guid_idx').on(table.feedId, table.guid),

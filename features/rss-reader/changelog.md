@@ -1,4 +1,15 @@
-## 2026-06-08 — Standalone image width expansion, <mark> styling, auto-detection restricted
+## 2026-06-08 (2) — Full-text extraction for partial feeds
+
+- feat: `@mozilla/readability` integration for automatic detection of partial/summary-only feeds and full-content extraction
+- feat: `feeds.is_partial_feed`, `items.raw_page_content`, `items.raw_page_error`, `items.not_renderable` columns added to schema
+- feat: 5/3 detection heuristic — fetches first 5 article URLs at add time, compares Readability-extracted text length vs feed content, marks feed as partial if 3+ differ significantly (>2x or >+500 chars)
+- feat: `feeds:detect-partial <email>` CLI command to (re-)detect partial feeds for all feeds of a user
+- feat: on refresh, partial feeds fetch `raw_page_content` + run `isProbablyReaderable()` + `Readability.parse()` + sanitize pipeline per item; skips already-fetched items
+- feat: extraction failures and non-readerable results are logged as road bumps (`raw_page_error`, `not_renderable`)
+- feat: `extractFromPage()`, `compareContentLength()`, `getTextContent()` utilities in `src/lib/server/feed/extract.ts`
+- dep: `@mozilla/readability@0.6.0` installed
+
+## 2026-06-08 (1) — Standalone image width expansion, <mark> styling, auto-detection restricted
 
 - feat: new `expandStandaloneImages` action drops `width`/`height` on standalone images when their `naturalWidth` exceeds the declared width
 - style: `.feed-content mark` styled with yellow highlight background

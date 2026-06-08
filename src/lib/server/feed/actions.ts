@@ -3,6 +3,7 @@ import { db } from '$lib/server/db';
 import { feeds as feedsTable } from '$lib/server/db/schema';
 import { fetchFeed } from './fetch';
 import { upsertFeed } from './store';
+import { detectPartialFeed } from './detect-partial';
 import { eq, and } from 'drizzle-orm';
 
 export async function addFeed(userId: string, url: string) {
@@ -29,6 +30,22 @@ export async function addFeed(userId: string, url: string) {
 		return fail(422, { message: 'No feed found at this URL' });
 
 	await upsertFeed(db, userId, url, fetchResult);
+
+	// Detect if this is a partial feed by comparing first 5 articles
+	try {
+		const isPartial = await detectPartialFeed(url, fetchResult.items);
+		await db
+			.update(feedsTable)
+			.set({ isPartialFeed: isPartial ? 1 : 0 })
+			.where(and(eq(feedsTable.userId, userId), eq(feedsTable.url, url)));
+
+		if (isPartial) {
+			console.log(`[addFeed] ${url} — marked as partial feed`);
+		}
+	} catch (e) {
+		console.log(`[addFeed] detection error for ${url}: ${e instanceof Error ? e.message : e}`);
+	}
+
 	return { success: 'Feed added' };
 }
 

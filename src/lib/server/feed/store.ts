@@ -7,6 +7,7 @@ import type { FetchResult } from './fetch';
 import { generateSlug } from '../slug';
 import { htmlToText } from '../html';
 import { sanitizeHtml } from '../sanitize';
+import { extractFromPage } from './extract';
 
 export type DB = PostgresJsDatabase<typeof schema>;
 
@@ -112,5 +113,81 @@ export async function upsertFeed(
 			});
 	}
 
+	// For partial feeds, fetch raw_page_content for items that don't have it yet
+	const feed = await db
+		.select({ isPartialFeed: feedsTable.isPartialFeed })
+		.from(feedsTable)
+		.where(eq(feedsTable.id, feedId))
+		.limit(1)
+		.then((r) => r[0]);
+
+	if (feed?.isPartialFeed) {
+		await fetchPageContent(db, feedId, newItems);
+	}
+
 	return { feedId, newItemCount: newItems.length };
+}
+
+async function fetchPageContent(db: DB, feedId: string, items: FetchResult['items']) {
+	for (const item of items) {
+		if (!item.url) continue;
+
+		const existing = await db
+			.select({ rawPageContent: itemsTable.rawPageContent })
+			.from(itemsTable)
+			.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)))
+			.limit(1)
+			.then((r) => r[0]);
+
+		if (existing?.rawPageContent) continue;
+
+		const log = (msg: string) => console.log(`  fetchContent: ${item.url} — ${msg}`);
+
+		try {
+			const response = await fetch(item.url);
+
+			if (!response.ok) {
+				log(`HTTP ${response.status}`);
+				await db
+					.update(itemsTable)
+					.set({ rawPageError: response.status, notRenderable: 1 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+				continue;
+			}
+
+			const html = await response.text();
+			const { content, notRenderable } = extractFromPage(html, item.url);
+
+			if (notRenderable) {
+				log('not readerable');
+				await db
+					.update(itemsTable)
+					.set({ rawPageContent: html, notRenderable: 1 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+				continue;
+			}
+
+			if (content) {
+				const cleanContent = await sanitizeHtml(content, item.url);
+				log('extracted');
+				await db
+					.update(itemsTable)
+					.set({ rawPageContent: html, content: cleanContent, notRenderable: 0 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+			} else {
+				log('readability returned empty');
+				await db
+					.update(itemsTable)
+					.set({ rawPageContent: html, notRenderable: 1 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+			}
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			log(`network error: ${msg}`);
+			await db
+				.update(itemsTable)
+				.set({ rawPageError: -1, notRenderable: 1 })
+				.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+		}
+	}
 }

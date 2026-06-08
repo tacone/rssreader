@@ -24,6 +24,7 @@
 		"feeds:fetch": "bun run src/lib/server/feed/cli.ts",
 		"feeds:refresh-all": "bun run src/lib/server/feed/refresh-all.ts",
 		"feeds:recompute-all": "bun run src/lib/server/feed/recompute-all.ts",
+		"feeds:detect-partial": "bun run src/lib/server/feed/detect-partial.ts",
 		"seeds:create": "bun run src/lib/server/seed/create-user.ts"
 	},
 	"devDependencies": {
@@ -64,6 +65,7 @@
 		"vitest-browser-svelte": "^2.1.0"
 	},
 	"dependencies": {
+		"@mozilla/readability": "^0.6.0",
 		"daisyui": "^5.5.20",
 		"dompurify": "^3.4.8",
 		"dotenv": "^17.4.2",

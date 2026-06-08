@@ -1,7 +1,7 @@
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import hljs from 'highlight.js';
-import { minify } from 'html-minifier-terser';
+import { minify, type Options } from 'html-minifier-terser';
 
 const AUTO_LANGUAGES = [
 	'bash', 'c', 'cpp', 'csharp', 'css', 'diff', 'go', 'graphql', 'ini',
@@ -439,14 +439,20 @@ function highlightCodeBlocks(html: string): string {
 
 // ── HTML minification ───────────────────────────────────────────
 
-const MINIFY_OPTIONS = {
+const MINIFY_OPTIONS:Options = {
 	collapseWhitespace: true,
 	removeComments: true,
 	collapseBooleanAttributes: true,
 	removeEmptyAttributes: true,
 	decodeEntities: true,
 	ignoreCustomFragments: [/srcset="[^"]*"/g],
+	removeEmptyElements: true,
+	removeRedundantAttributes: true,
+	sortAttributes: true,
 };
+
+// minification makes the process ~30% slower (e.g. from 36s to 48s)
+const MINIFY_HTML = true;
 
 // ── Public API ──────────────────────────────────────────────────
 
@@ -463,5 +469,10 @@ export async function sanitizeHtml(html: string, baseUrl?: string): Promise<stri
 		ADD_ATTR: ['data-provider', 'data-videoid', 'data-relevance'],
 		ALLOW_UNKNOWN_PROTOCOLS: false,
 	});
-	return minify(sanitized, MINIFY_OPTIONS);
+	if (!MINIFY_HTML) return sanitized;
+
+	const minified = await minify(sanitized, MINIFY_OPTIONS);
+	console.log(`minified from ${sanitized.length} to ${minified.length} [${(100 * minified.length / sanitized.length).toFixed(2)}]`)
+
+	return minified;
 }

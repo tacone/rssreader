@@ -226,9 +226,11 @@ function isInlineImage(img: Element): boolean {
 	}
 
 	const src = img.getAttribute('src') || '';
+	let hasQueryHeight = false;
 	try {
 		const url = new URL(src, 'https://localhost');
 		const hParam = url.searchParams.get('h') || url.searchParams.get('height');
+		hasQueryHeight = !!hParam;
 		if (hParam) {
 			const h = parseInt(hParam, 10);
 			if (!isNaN(h) && h < 100) return true;
@@ -238,6 +240,26 @@ function isInlineImage(img: Element): boolean {
 	}
 
 	if (INLINE_DIMENSION_RE.test(src)) return true;
+
+	// Content-based fallback: if the image truly has no size hints
+	// (no height attr, no query param height) and has direct text-node
+	// siblings, treat as inline — catches SVG icons and similar.
+	if (!heightAttr && !hasQueryHeight && !src.startsWith('data:')) {
+		const parent = img.parentElement;
+		if (parent) {
+			const children = Array.from(parent.childNodes);
+			const idx = children.indexOf(img);
+			if (idx !== -1) {
+				for (const step of [-1, 1]) {
+					const i = idx + step;
+					const node = children[i];
+					if (node && node.nodeType === 3 && node.textContent?.trim()) {
+						return true;
+					}
+				}
+			}
+		}
+	}
 
 	return false;
 }

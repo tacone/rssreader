@@ -566,9 +566,30 @@ describe('sanitizeHtml', () => {
 			expect(result).toContain('height="400"');
 		});
 
-		it('no class for images with text siblings', async () => {
+		it('inline with adjacent text when no other signals', async () => {
 			const result = classifyImages('<p>a <img src="x.png"> b</p>');
-			expect(result).not.toContain('class="');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('inline when only preceded by text (no height, no dim URL)', async () => {
+			const result = classifyImages('<p>text <img src="icon.svg"></p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).not.toContain('followed-by-text');
+		});
+
+		it('inline when only followed by text (no height, no dim URL)', async () => {
+			const result = classifyImages('<p><img src="icon.svg"> text</p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+			expect(result).not.toContain('preceded-by-text');
+		});
+
+		it('standalone when sole child despite .svg extension', async () => {
+			const result = classifyImages('<p><img src="hero.svg"></p>');
+			expect(result).toContain('class="standalone-image"');
 		});
 
 		it('inline inside transparent a wrapper when not sole child', async () => {

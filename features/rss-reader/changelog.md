@@ -1,3 +1,9 @@
+## 2026-07-14 (3) — Content-based inline fallback for images with no size hints
+
+- fix: images without any dimension signals (no height attr, no URL dimension pattern, no query param height) and with direct text-node siblings are now classified as inline — catches SVG icons and other small images embedded in article text
+- test: 4 new tests covering text-adjacent inline fallback, including preceded-only, followed-only, and sole-child regression
+- fix: narrows text-adjacency check to direct text-node siblings only (not element siblings with text content) to avoid corrupting standalone classification of element-surrounded images
+
 ## 2026-07-14 (2) — Tighten inline image classification: figure guard + bounded dimension regex
 
 - fix: `INLINE_DIMENSION_RE` regex `/\d{1,3}x\d{1,2}/` matched substrings of larger dimension numbers (e.g. `1024x79` within `1024x798`) — false-positive inline classification for hero/content images

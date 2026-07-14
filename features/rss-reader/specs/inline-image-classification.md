@@ -80,6 +80,30 @@ Image classification runs at **sanitize time** (server-side, in the jsdom DOM wa
 
 ## Revisions
 
+### 2026-07-14 — Content-based fallback for images with no size hints
+
+**Problem**: SVG icons and other small images without any dimension signal
+(no `height` attribute, no `{width}x{height}` URL pattern, no query-param
+height) received no inline class despite being embedded in running text.
+The image at `.../dots/L.svg` rendered at natural (full) width instead of
+flowing inline with surrounding text.
+
+**Fix**: Added a content-based fallback at the end of `isInlineImage` that
+fires when ALL of these conditions are met:
+1. No `height` attribute on the `<img>` element
+2. No `h=` or `height=` query param in the `src` URL
+3. The `src` is not a `data:` URI (data URIs can be any size and are safely
+   left as uncategorized default)
+4. The image has adjacent text-node siblings — direct `#text` nodes with
+   non-whitespace content in the same parent element (element siblings with
+   text content, like `<span>a</span>`, are treated as boundaries and do NOT
+   trigger the fallback)
+
+This is intentionally placed *after* all dimension-based checks and *before*
+the final `return false`. Any image that reaches this point has zero size
+information available — the only signal is its contextual position in the
+text flow.
+
 ### 2026-07-14 — Bounded dimension regex + figure guard
 
 **Problem**: The original `INLINE_DIMENSION_RE = /\d{1,3}x\d{1,2}/` matched dimension

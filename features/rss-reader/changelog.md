@@ -1,3 +1,10 @@
+## 2026-07-14 (2) — Tighten inline image classification: figure guard + bounded dimension regex
+
+- fix: `INLINE_DIMENSION_RE` regex `/\d{1,3}x\d{1,2}/` matched substrings of larger dimension numbers (e.g. `1024x79` within `1024x798`) — false-positive inline classification for hero/content images
+- fix: new regex `/(?:^|[^0-9])\d{1,2}x\d{1,2}(?=[^0-9]|$)/` with non-digit boundaries on both sides, matching only 1–2 digit widths (`74x43`, `32x32`) — no false positives on `1024x798`, `200x30`, `256x256`
+- fix: `isInlineImage()` now returns `false` when `img.closest('figure')` is truthy — `<figure>` provides its own block layout; prevents inline heuristics from breaking figure-styled images
+- test: 5 new tests covering figure guard, `1024x798` not inline, `74x43` still inline, `32x32` still inline, `200x30` not inline
+
 ## 2026-07-14 — Content preservation on refresh, shared CLI logic, re-extraction from raw_page_content
 
 - fix: `onConflictDoUpdate` no longer overwrites `items.content` with feed summary on partial-feed refresh — extracted full content is preserved across refreshes

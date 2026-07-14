@@ -512,6 +512,11 @@ describe('sanitizeHtml', () => {
 			expect(result).not.toContain('class="standalone-image"');
 		});
 
+		it('image in <figure> with dimension URL is not inline (figure guard)', async () => {
+			const result = await sanitizeHtml('<figure><img src="https://example.com/photo-1024x798.webp" srcset="..."><figcaption>Cap</figcaption></figure>');
+			expect(result).not.toContain('class="inline-image"');
+		});
+
 		it('image in <picture> inside <table> is not standalone', async () => {
 			const result = await sanitizeHtml(
 				'<table><tr><td><picture><source srcset="chart.webp"><img src="chart.png"></picture></td></tr></table>'
@@ -576,6 +581,27 @@ describe('sanitizeHtml', () => {
 			const result = classifyImages('<p><a href="/"><img src="banner.jpg" height="400"></a></p>');
 			expect(result).toContain('class="standalone-image"');
 			expect(result).toContain('height="400"');
+		});
+
+		it('large dimension URL like 1024x798 is not classified as inline', async () => {
+			const result = classifyImages('<p><img src="https://example.com/image-1024x798.webp" height="200"> text</p>');
+			expect(result).not.toContain('class="inline-image"');
+			expect(result).toContain('height="200"');
+		});
+
+		it('small dimension URL like 74x43 is still classified as inline', async () => {
+			const result = classifyImages('<p><img src="https://example.com/icon-74x43.png" height="200"> text</p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+		});
+
+		it('dimension pattern 32x32 at start of filename is inline', async () => {
+			const result = classifyImages('<p><img src="https://example.com/32x32-icon.png" height="200"> text</p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+		});
+
+		it('dimension pattern 200x30 does not trigger inline (too wide)', async () => {
+			const result = classifyImages('<p><img src="https://example.com/banner-200x30.jpg" height="200"> text</p>');
+			expect(result).not.toContain('class="inline-image"');
 		});
 	});
 

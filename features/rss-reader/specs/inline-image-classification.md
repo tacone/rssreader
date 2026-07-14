@@ -77,3 +77,29 @@ Image classification runs at **sanitize time** (server-side, in the jsdom DOM wa
 - **Images separated by `<br>`** (`<img><br><img>`): Treated as default, not standalone. Could be reactions, decorative spacing, or intent. Not distinguishable.
 - **Data URI images without declared height** (`<img src="data:image/svg+xml,...">`): No height attribute and no URL-based size hints, so no inline trigger fires. They fall through to standalone or default depending on context. Acceptable — intrinsic size is correct for most inline SVGs.
 - **Images inside `<figcaption>`**: May appear as inline images within figure captions. These are small by nature and would typically have declared height or be inside a caption context. Left to default behavior.
+
+## Revisions
+
+### 2026-07-14 — Bounded dimension regex + figure guard
+
+**Problem**: The original `INLINE_DIMENSION_RE = /\d{1,3}x\d{1,2}/` matched dimension
+substrings within larger numbers. A URL like `photo-1024x798.webp` matched `1024x79`,
+falsely classifying a hero image as inline and shrinking it to `max-height: 1em`.
+
+**Fix 1 — Bounded regex**:
+```
+// Before: /\\d{1,3}x\\d{1,2}/
+// After:  /(?:^|[^0-9])\\d{1,2}x\\d{1,2}(?=[^0-9]|$)/
+```
+- Non-digit boundaries on both sides prevent matching within larger numbers
+- Width limited to `\d{1,2}` (1–2 digits, max 99) — small enough for inline icons only
+- Matches `74x43`, `32x32`, `96x96` — legitimate inline icon URLs
+- Does NOT match `1024x798`, `200x30`, `256x256`, `640x480`
+
+**Fix 2 — Figure guard in `isInlineImage`**:
+```ts
+if (img.closest('figure')) return false;
+```
+Images inside `<figure>` should never receive `inline-image`. The `<figure>` element
+provides its own block-level layout with centering, background, and padding. If an
+inline heuristic falsely fires on a figure image, the figure layout breaks entirely.

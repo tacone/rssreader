@@ -74,7 +74,7 @@ const INLINE_WRAPPER_TAGS = new Set([
 
 const INLINE_CLASS_WHITELIST = new Set(['wp-smiley']);
 
-const INLINE_DIMENSION_RE = /\d{1,3}x\d{1,2}/;
+const INLINE_DIMENSION_RE = /(?:^|[^0-9])\d{1,2}x\d{1,2}(?=[^0-9]|$)/;
 
 function getOutermostWrapper(el: Element): Element {
 	let current = el;
@@ -196,6 +196,9 @@ function hasImgSiblings(el: Element): boolean {
 }
 
 function isInlineImage(img: Element): boolean {
+	// Images inside <figure> are never inline — figure provides its own layout
+	if (img.closest('figure')) return false;
+
 	// Unconditional triggers: these override the sole-child precondition
 	if (img.closest('pre')) return true;
 

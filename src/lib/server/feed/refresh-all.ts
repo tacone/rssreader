@@ -1,9 +1,7 @@
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../db/schema';
-import { fetchFeed } from './fetch';
-import { upsertFeed } from './store';
-import { detectPartialFeed } from './detect-partial';
+import { refreshSingleFeed } from './store';
 import { eq } from 'drizzle-orm';
 
 async function main() {
@@ -57,27 +55,9 @@ async function main() {
 
 		for (const feed of feeds) {
 			try {
-				const result = await fetchFeed(feed.url, force ? undefined : {
-					etag: feed.etag ?? undefined,
-					lastModified: feed.lastModified ?? undefined,
-				});
-				if (result.items.length > 0 || result.meta.title) {
-					let isPartial: boolean | undefined;
-
-					if (force) {
-						try {
-							isPartial = await detectPartialFeed(feed.url, result.items, (msg) => console.log(`  detect: ${msg}`));
-							if (isPartial) {
-								console.log(`  → PARTIAL FEED`);
-							}
-						} catch (e) {
-							console.error(`  detect-err: ${feed.title || feed.url} — ${e instanceof Error ? e.message : e}`);
-						}
-					}
-
-					const { newItemCount } = await upsertFeed(db, user.id, feed.url, result, isPartial);
-
-					console.log(`  OK: ${feed.title || feed.url} (${newItemCount} new items)`);
+				const result = await refreshSingleFeed(db, user.id, feed, force, (msg) => console.log(msg));
+				if (result.status === 'refreshed') {
+					console.log(`  OK: ${feed.title || feed.url} (${result.newItemCount} new items)`);
 					refreshed++;
 				} else {
 					console.log(`  304: ${feed.title || feed.url}`);

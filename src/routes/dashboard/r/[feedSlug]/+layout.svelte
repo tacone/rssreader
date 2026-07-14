@@ -1,17 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 
-	interface Item {
-		id: string; slug: string; title: string | null;
-		url: string | null; summary: string | null;
-		author: string | null; publishedAt: Date | null;
-		isRead: boolean; isStarred: boolean;
-	}
-
-	let { data, children }: {
-		data: { items: Item[]; feedSlug: string };
-		children: import('svelte').Snippet;
-	} = $props();
+	let { data, children } = $props();
 </script>
 
 <div class="grid overflow-hidden" style="grid-template-columns: 1fr 2fr;">

@@ -23,4 +23,11 @@
 - ~~#22 - img as sole child of p as sole child of td/th should not be standalone. even better: img should never be standalone if any ancestor is a table~~
 - ~~#23 - style `<mark>` (background opacity)~~
 - #24 - create standalone-video (applies also to youtube)
-- #25 - should we just strip existing markup from <pre> content?
+- #25 - check: are we already stripping existing markup from <pre> content? (also check `pre > code`)
+- #26 - should we just strip existing markup from <pre> content?
+- #27 - syntax highlighting: detection bump relevance of content in snippets on the same page (check for similar keywords)
+- #28 - better style for code in links and headers
+- #29 - limit feed download number
+- #30 - link to posts with spaces in the url does not open, entities get decoded (https://www.figma.com/release-notes/?title=Visually%20edit%20your%20codebase%20with%20Make)
+- #31 - extraction should fail if most article have the same text
+- #32 - detect and skip unchanged feeds

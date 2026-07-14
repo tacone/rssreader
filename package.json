@@ -21,7 +21,7 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"auth:schema": "better-auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes",
-		"feeds:fetch": "bun run src/lib/server/feed/cli.ts",
+		"feeds:refresh": "bun run src/lib/server/feed/refresh.ts",
 		"feeds:refresh-all": "bun run src/lib/server/feed/refresh-all.ts",
 		"feeds:recompute-all": "bun run src/lib/server/feed/recompute-all.ts",
 		"feeds:detect-partial": "bun run src/lib/server/feed/detect-partial.ts",

@@ -4,10 +4,12 @@ import { eq, and, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import type * as schema from '../db/schema';
 import type { FetchResult } from './fetch';
+import { fetchFeed } from './fetch';
 import { generateSlug } from '../slug';
 import { htmlToText } from '../html';
 import { sanitizeHtml } from '../sanitize';
 import { extractFromPage } from './extract';
+import { detectPartialFeed } from './detect-partial';
 
 export type DB = PostgresJsDatabase<typeof schema>;
 
@@ -132,6 +134,46 @@ export async function upsertFeed(
 	}
 
 	return { feedId, newItemCount: newItems.length };
+}
+
+export async function refreshSingleFeed(
+	db: DB,
+	userId: string,
+	feed: {
+		id: string;
+		url: string;
+		title: string | null;
+		etag: string | null;
+		lastModified: string | null;
+	},
+	force?: boolean,
+	log?: (msg: string) => void
+): Promise<{ newItemCount: number; status: 'refreshed' | 'cached' }> {
+	const _log = log ?? (() => {});
+
+	const result = await fetchFeed(feed.url, force ? undefined : {
+		etag: feed.etag ?? undefined,
+		lastModified: feed.lastModified ?? undefined,
+	});
+
+	if (result.items.length === 0 && !result.meta.title) {
+		return { newItemCount: 0, status: 'cached' };
+	}
+
+	let isPartial: boolean | undefined;
+	if (force) {
+		try {
+			isPartial = await detectPartialFeed(feed.url, result.items, (msg) => _log(`  detect: ${msg}`));
+			if (isPartial) {
+				_log('  → PARTIAL FEED');
+			}
+		} catch (e) {
+			_log(`  detect-err: ${e instanceof Error ? e.message : e}`);
+		}
+	}
+
+	const { newItemCount } = await upsertFeed(db, userId, feed.url, result, isPartial);
+	return { newItemCount, status: 'refreshed' };
 }
 
 async function fetchPageContent(db: DB, feedId: string, items: FetchResult['items']) {

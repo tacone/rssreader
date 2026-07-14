@@ -68,6 +68,18 @@ export async function upsertFeed(
 		});
 	}
 
+	// Determine partial status — use passed value or DB (existing feed only)
+	const isItemPartial: number = isPartialFeed !== undefined
+		? (isPartialFeed ? 1 : 0)
+		: (existing.length > 0
+			? await db
+				.select({ isPartialFeed: feedsTable.isPartialFeed })
+				.from(feedsTable)
+				.where(eq(feedsTable.id, feedId))
+				.limit(1)
+				.then((r) => r[0]?.isPartialFeed ?? 0)
+			: 0);
+
 	const newItems = fetchResult.items.filter((item) => item.guid);
 	for (const item of newItems) {
 		const rawTitle = item.rawTitle?.trim() ?? null;
@@ -107,7 +119,7 @@ export async function upsertFeed(
 			})
 			.onConflictDoUpdate({
 				target: [itemsTable.feedId, itemsTable.guid],
-				set: {
+				set: buildItemUpdateSet({
 					title,
 					url: item.url,
 					rawTitle,
@@ -116,20 +128,14 @@ export async function upsertFeed(
 					content,
 					summary,
 					author: item.author,
-					publishedAt: item.publishedAt
-				}
+					publishedAt: item.publishedAt,
+					isPartialFeed: isItemPartial
+				})
 			});
 	}
 
 	// For partial feeds, fetch raw_page_content for items that don't have it yet
-	const shouldFetch = isPartialFeed ?? (await db
-		.select({ isPartialFeed: feedsTable.isPartialFeed })
-		.from(feedsTable)
-		.where(eq(feedsTable.id, feedId))
-		.limit(1)
-		.then((r) => r[0]))?.isPartialFeed;
-
-	if (shouldFetch) {
+	if (isItemPartial) {
 		await fetchPageContent(db, feedId, newItems);
 	}
 
@@ -238,4 +244,36 @@ async function fetchPageContent(db: DB, feedId: string, items: FetchResult['item
 				.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
 		}
 	}
+}
+
+export type ItemUpdateParams = {
+	title: string | null;
+	url: string | undefined | null;
+	rawTitle: string | null;
+	rawSummary: string | null;
+	rawContent: string | null;
+	content: string | null;
+	summary: string | null;
+	author: string | undefined | null;
+	publishedAt: Date | undefined | null;
+	isPartialFeed: number;
+};
+
+export function buildItemUpdateSet(params: ItemUpdateParams): Record<string, unknown> {
+	const set: Record<string, unknown> = {
+		title: params.title,
+		url: params.url,
+		rawTitle: params.rawTitle,
+		rawSummary: params.rawSummary,
+		rawContent: params.rawContent,
+		summary: params.summary,
+		author: params.author,
+		publishedAt: params.publishedAt
+	};
+
+	if (!params.isPartialFeed) {
+		set.content = params.content;
+	}
+
+	return set;
 }

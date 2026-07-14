@@ -285,20 +285,31 @@ export async function recomputeSingleFeed(
 ): Promise<number> {
 	const _log = log ?? (() => {});
 
+	const feedRow = await db
+		.select({ isPartialFeed: feedsTable.isPartialFeed })
+		.from(feedsTable)
+		.where(eq(feedsTable.id, feed.id))
+		.limit(1)
+		.then((r) => r[0]);
+
+	const isPartial = feedRow?.isPartialFeed ?? 0;
+
 	const items = await db
 		.select({
 			id: itemsTable.id,
 			rawTitle: itemsTable.rawTitle,
 			rawSummary: itemsTable.rawSummary,
-			rawContent: itemsTable.rawContent
+			rawContent: itemsTable.rawContent,
+			rawPageContent: itemsTable.rawPageContent
 		})
 		.from(itemsTable)
 		.where(eq(itemsTable.feedId, feed.id));
 
 	let updated = 0;
+	let reExtracted = 0;
 
 	for (const item of items) {
-		if (!item.rawTitle && !item.rawSummary && !item.rawContent) continue;
+		if (!item.rawTitle && !item.rawSummary && !item.rawContent && !(isPartial && item.rawPageContent)) continue;
 
 		const title = item.rawTitle ? htmlToText(item.rawTitle) : null;
 
@@ -311,7 +322,16 @@ export async function recomputeSingleFeed(
 			summary = null;
 		}
 
-		const content = item.rawContent ? await sanitizeHtml(item.rawContent, feed.url) : null;
+		let content: string | null;
+		if (isPartial && item.rawPageContent) {
+			const { content: extracted, notRenderable } = extractFromPage(item.rawPageContent, feed.url);
+			content = extracted && !notRenderable ? await sanitizeHtml(extracted, feed.url) : null;
+			if (content) reExtracted++;
+		} else if (item.rawContent) {
+			content = await sanitizeHtml(item.rawContent, feed.url);
+		} else {
+			content = null;
+		}
 
 		await db
 			.update(itemsTable)
@@ -321,6 +341,7 @@ export async function recomputeSingleFeed(
 		updated++;
 	}
 
-	_log(`${feed.title || feed.url}: ${updated} items`);
+	const suffix = reExtracted > 0 ? ` (${reExtracted} re-extracted from page)` : '';
+	_log(`${feed.title || feed.url}: ${updated} items${suffix}`);
 	return updated;
 }

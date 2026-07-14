@@ -1,3 +1,15 @@
+## 2026-07-14 — Content preservation on refresh, shared CLI logic, re-extraction from raw_page_content
+
+- fix: `onConflictDoUpdate` no longer overwrites `items.content` with feed summary on partial-feed refresh — extracted full content is preserved across refreshes
+- feat: shared `refreshSingleFeed()` in store.ts — per-feed refresh with cache-aware fetch, detection, and page-content fetching; used by both `feeds:refresh-all` and `feeds:refresh`
+- feat: `feeds:refresh <email> <url>` — refresh a single existing feed (with optional `--force`), replaces removed `feeds:fetch`
+- feat: shared `recomputeSingleFeed()` in store.ts — per-feed recompute; used by both `feeds:recompute-all` and `feeds:recompute`
+- feat: `feeds:recompute <email> <url>` — recompute a single existing feed
+- feat: for partial feeds, `recomputeSingleFeed` re-extracts `items.content` from stored `raw_page_content` using Readability (instead of re-sanitizing the feed summary)
+- fix: detection runs before `upsertFeed` so the `isPartialFeed` flag is available for the item upsert — no more chicken-and-egg bug where first batch of items skipped page fetching
+- refactor: `buildItemUpdateSet()` extracted as pure, testable function — conditionally excludes `content` from `onConflictDoUpdate.set` when `isPartialFeed=1`
+- dep: removed `feeds:fetch` / `cli.ts` (replaced by `feeds:refresh` + `feeds:refresh-all`)
+
 ## 2026-06-08 (2) — Full-text extraction for partial feeds
 
 - feat: `@mozilla/readability` integration for automatic detection of partial/summary-only feeds and full-content extraction

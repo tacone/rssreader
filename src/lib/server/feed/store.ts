@@ -277,3 +277,50 @@ export function buildItemUpdateSet(params: ItemUpdateParams): Record<string, unk
 
 	return set;
 }
+
+export async function recomputeSingleFeed(
+	db: DB,
+	feed: { id: string; url: string; title: string | null },
+	log?: (msg: string) => void
+): Promise<number> {
+	const _log = log ?? (() => {});
+
+	const items = await db
+		.select({
+			id: itemsTable.id,
+			rawTitle: itemsTable.rawTitle,
+			rawSummary: itemsTable.rawSummary,
+			rawContent: itemsTable.rawContent
+		})
+		.from(itemsTable)
+		.where(eq(itemsTable.feedId, feed.id));
+
+	let updated = 0;
+
+	for (const item of items) {
+		if (!item.rawTitle && !item.rawSummary && !item.rawContent) continue;
+
+		const title = item.rawTitle ? htmlToText(item.rawTitle) : null;
+
+		let summary: string | null;
+		if (item.rawSummary) {
+			summary = htmlToText(item.rawSummary);
+		} else if (item.rawContent) {
+			summary = htmlToText(item.rawContent).slice(0, 255);
+		} else {
+			summary = null;
+		}
+
+		const content = item.rawContent ? await sanitizeHtml(item.rawContent, feed.url) : null;
+
+		await db
+			.update(itemsTable)
+			.set({ title, summary, content })
+			.where(eq(itemsTable.id, item.id));
+
+		updated++;
+	}
+
+	_log(`${feed.title || feed.url}: ${updated} items`);
+	return updated;
+}

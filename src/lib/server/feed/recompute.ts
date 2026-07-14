@@ -1,17 +1,20 @@
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { eq, and } from 'drizzle-orm';
 import * as schema from '../db/schema';
 import { recomputeSingleFeed } from './store';
-import { eq } from 'drizzle-orm';
 
 async function main() {
-	const email = process.argv[2];
+	const args = process.argv.slice(2);
+	const positional = args.filter((a) => !a.startsWith('--'));
 
-	if (!email) {
-		console.error('Usage: bun run feeds:recompute-all <user-email>');
-		console.error('  With npm: npm run feeds:recompute-all -- <user-email>');
+	if (positional.length < 2) {
+		console.error('Usage: bun run feeds:recompute <user-email> <feed-url>');
+		console.error('  With npm: npm run feeds:recompute -- <user-email> <feed-url>');
 		process.exit(1);
 	}
+
+	const [email, url] = positional;
 
 	const dbUrl = process.env.DATABASE_URL;
 	if (!dbUrl) {
@@ -35,26 +38,20 @@ async function main() {
 			process.exit(1);
 		}
 
-		const feeds = await db
+		const feed = await db
 			.select()
 			.from(schema.feeds)
-			.where(eq(schema.feeds.userId, user.id));
+			.where(and(eq(schema.feeds.userId, user.id), eq(schema.feeds.url, url)))
+			.limit(1)
+			.then((r) => r[0]);
 
-		if (feeds.length === 0) {
-			console.log('No feeds found for this user.');
-			process.exit(0);
+		if (!feed) {
+			console.error(`Feed not found for this user: ${url}`);
+			process.exit(1);
 		}
 
-		console.log(`Recomputing ${feeds.length} feed(s) for ${email}...`);
-
-		let totalUpdated = 0;
-
-		for (const feed of feeds) {
-			const updated = await recomputeSingleFeed(db, feed, (msg) => console.log(`  ${msg}`));
-			totalUpdated += updated;
-		}
-
-		console.log(`Done: ${totalUpdated} items recomputed`);
+		const updated = await recomputeSingleFeed(db, feed, (msg) => console.log(msg));
+		console.log(`Done: ${updated} items recomputed`);
 	} catch (err) {
 		console.error('Error:', err instanceof Error ? err.message : err);
 		process.exit(1);

@@ -592,6 +592,32 @@ describe('sanitizeHtml', () => {
 			expect(result).toContain('class="standalone-image"');
 		});
 
+		it('inline via wrapper walk-up when img in <a> with surrounding text', async () => {
+			const result = classifyImages('<p>before <a href="/"><img src="icon.svg"></a> after</p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+		});
+
+		it('inline via wrapper walk-up with only preceding text', async () => {
+			const result = classifyImages('<p>before <a href="/"><img src="icon.svg"></a></p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*preceded-by-text/);
+			expect(result).not.toContain('followed-by-text');
+		});
+
+		it('inline via wrapper walk-up with only following text', async () => {
+			const result = classifyImages('<p><a href="/"><img src="icon.svg"></a> after</p>');
+			expect(result).toMatch(/class="[^"]*inline-image/);
+			expect(result).toMatch(/class="[^"]*followed-by-text/);
+			expect(result).not.toContain('preceded-by-text');
+		});
+
+		it('standalone when <a> wrapper is sole child of <p>', async () => {
+			const result = classifyImages('<p><a href="/"><img src="icon.svg"></a></p>');
+			expect(result).toContain('class="standalone-image"');
+		});
+
 		it('inline inside transparent a wrapper when not sole child', async () => {
 			const result = classifyImages('<p><a href="/"><img src="icon.svg" height="24"></a> text</p>');
 			expect(result).toMatch(/class="[^"]*inline-image/);

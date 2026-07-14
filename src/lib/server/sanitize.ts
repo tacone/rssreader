@@ -187,6 +187,38 @@ function hasAdjacentTextInChain(el: Element, direction: 'preceding' | 'following
 	return false;
 }
 
+function hasAdjacentTextNodeInChain(el: Element, direction: 'preceding' | 'following'): boolean {
+	let current: Element | null = el;
+	while (current) {
+		const parent = current.parentElement;
+		if (!parent) return false;
+
+		const children = Array.from(parent.childNodes);
+		const idx = children.indexOf(current);
+		if (idx === -1) return false;
+
+		const start = direction === 'preceding' ? idx - 1 : idx + 1;
+		const end = direction === 'preceding' ? -1 : children.length;
+		const step = direction === 'preceding' ? -1 : 1;
+
+		for (let i = start; direction === 'preceding' ? i > end : i < end; i += step) {
+			const node = children[i];
+			if (node.nodeType === 3) {
+				if (node.textContent && node.textContent.trim().length > 0) return true;
+			} else {
+				break;
+			}
+		}
+
+		if (current.parentElement && isInlineWrapper(current.parentElement)) {
+			current = current.parentElement;
+		} else {
+			break;
+		}
+	}
+	return false;
+}
+
 function hasImgSiblings(el: Element): boolean {
 	const parent = el.parentElement;
 	if (!parent) return false;
@@ -243,21 +275,10 @@ function isInlineImage(img: Element): boolean {
 
 	// Content-based fallback: if the image truly has no size hints
 	// (no height attr, no query param height) and has direct text-node
-	// siblings, treat as inline — catches SVG icons and similar.
+	// siblings (walking up through inline wrappers), treat as inline.
 	if (!heightAttr && !hasQueryHeight && !src.startsWith('data:')) {
-		const parent = img.parentElement;
-		if (parent) {
-			const children = Array.from(parent.childNodes);
-			const idx = children.indexOf(img);
-			if (idx !== -1) {
-				for (const step of [-1, 1]) {
-					const i = idx + step;
-					const node = children[i];
-					if (node && node.nodeType === 3 && node.textContent?.trim()) {
-						return true;
-					}
-				}
-			}
+		if (hasAdjacentTextNodeInChain(img, 'preceding') || hasAdjacentTextNodeInChain(img, 'following')) {
+			return true;
 		}
 	}
 

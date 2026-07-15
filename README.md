@@ -1,8 +1,6 @@
-# RSS Reader
+# Read RSS
 
-A fast, minimal RSS reader built as a pet project. Linear feed UI inspired by Google Reader's linearity — no algorithm, no sharing, just your feeds.
-
-Built from scratch to be tiny, fast, and pleasant to use daily.
+A fast, minimal RSS reader. Linear feed UI inspired by Google Reader — no algorithm, no sharing, just your feeds.
 
 ## Tech Stack
 

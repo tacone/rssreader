@@ -1,3 +1,12 @@
+## 2026-07-14 (4) — Project renamed to "Read RSS"
+
+- feat: project renamed from "RSS Reader" to "Read RSS"
+- feat: `SITE_NAME` exported from `src/lib/config.ts` — single source of truth for the site name
+- feat: `<title>` tag set dynamically from `{SITE_NAME}` in root layout and all pages
+- feat: header branding uses `{SITE_NAME}` from config
+- refactor: landing page (`/`) renders `{SITE_NAME}` with proper heading markup
+- docs: README updated with new project name
+
 ## 2026-07-14 (3) — Content-based inline fallback for images with no size hints
 
 - fix: images without any dimension signals (no height attr, no URL dimension pattern, no query param height) and with direct text-node siblings are now classified as inline — catches SVG icons and other small images embedded in article text

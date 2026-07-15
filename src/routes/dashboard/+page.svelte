@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SITE_NAME } from '$lib/config';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 
@@ -21,7 +22,7 @@
 	}
 </script>
 
-<svelte:head><title>Manage Feeds — RSS Reader</title></svelte:head>
+<svelte:head><title>Manage Feeds — {SITE_NAME}</title></svelte:head>
 
 <div class="mx-auto flex max-w-4xl flex-col gap-6 p-6">
 	<div class="flex items-center justify-between">

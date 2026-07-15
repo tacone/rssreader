@@ -142,6 +142,10 @@
 	text-underline-offset: 2px;
 }
 
+[data-theme="dark"] .feed-content a {
+	color: color-mix(in oklch, var(--color-primary) 50%, white);
+}
+
 .feed-content a:hover {
 	color: color-mix(in oklch, var(--color-primary) 80%, black);
 }

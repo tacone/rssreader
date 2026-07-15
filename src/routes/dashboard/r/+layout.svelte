@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SITE_NAME } from '$lib/config';
+	import favicon from '$lib/assets/favicon.svg';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
@@ -32,7 +33,7 @@
 
 <div class="grid h-screen overflow-hidden" style="grid-template-rows: auto 1fr;">
 	<header class="flex items-center gap-3 border-b border-base-300 px-4 py-2">
-		<a href="/dashboard" class="text-lg font-bold">{SITE_NAME}</a>
+		<a href="/dashboard" class="flex items-center gap-1.5 text-lg font-bold"><img src={favicon} alt="" class="size-5" />{SITE_NAME}</a>
 		<div class="flex-1"></div>
 		<form method="POST" action="/dashboard/r?/refreshAll" use:enhance class="inline">
 			<button type="submit" class="btn btn-ghost btn-xs">Refresh All</button>

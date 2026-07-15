@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SITE_NAME } from '$lib/config';
+	import FeedIcon from '$lib/components/FeedIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 
@@ -70,9 +71,7 @@
 			{#each data.feeds as feed (feed.id)}
 				<li class="card card-border card-side items-center bg-base-200 px-4 py-3">
 					<span class="inline-block size-6 shrink-0">
-						{#if feed.icon}
-							<img src={feed.icon} alt="" class="size-6 rounded" onerror={e => (e.currentTarget as HTMLImageElement).hidden = true} />
-						{/if}
+						<FeedIcon src={feed.icon} size="size-6" />
 					</span>
 					<div class="min-w-0 flex-1 px-3">
 						<a href="/dashboard/r/{feed.slug}" class="link link-hover truncate block font-medium">{feed.title || feed.url}</a>

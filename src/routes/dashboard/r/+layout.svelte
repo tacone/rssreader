@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SITE_NAME } from '$lib/config';
+	import FeedIcon from '$lib/components/FeedIcon.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
@@ -77,9 +78,7 @@
 					<li>
 						<a href="/dashboard/r/{feed.slug}" class="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-base-300 border-l border-l-transparent pl-3 {($page.url.pathname + $page.url.search).includes(feed.slug) ? 'bg-base-300 border-l-accent!' : ''}">
 							<span class="inline-block size-4 shrink-0">
-								{#if feed.icon}
-									<img src={feed.icon} alt="" class="size-4 rounded" onerror={e => (e.currentTarget as HTMLImageElement).hidden = true} />
-								{/if}
+								<FeedIcon src={feed.icon} />
 							</span>
 							<span class="min-w-0 flex-1 truncate">{feed.title || feed.url}</span>
 							{#if feed.unread > 0}

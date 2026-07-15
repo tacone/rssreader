@@ -6,5 +6,5 @@
 {#if src && !failed}
 	<img {src} alt="" class="{size} rounded" onerror={() => failed = true} />
 {:else}
-	<span class="inline-block {size} rounded bg-white/30"></span>
+	<span class="inline-block {size} rounded bg-white/20"></span>
 {/if}

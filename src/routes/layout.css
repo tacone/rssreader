@@ -137,13 +137,13 @@
 }
 
 .feed-content a {
-	color: color-mix(in oklch, var(--color-primary) 70%, transparent);
+	color: var(--color-primary);
 	text-decoration: underline;
 	text-underline-offset: 2px;
 }
 
 .feed-content a:hover {
-	opacity: 0.8;
+	color: color-mix(in oklch, var(--color-primary) 80%, black);
 }
 
 .feed-content ul,

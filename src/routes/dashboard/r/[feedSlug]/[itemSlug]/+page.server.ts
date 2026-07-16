@@ -35,6 +35,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 	if (!item) redirect(302, `/dashboard/r/${params.feedSlug}`);
 
+	if (!item.isRead) {
+		await db.update(itemsTable).set({ isRead: true }).where(eq(itemsTable.id, item.id));
+		item.isRead = true;
+	}
+
 	return { item };
 };
 

@@ -14,9 +14,9 @@
 			<ul class="flex flex-col">
 				{#each data.items as item (item.id)}
 					<li>
-						<a href="/dashboard/r/{data.feedSlug}/{item.slug}" class="block border-b border-base-200 px-4 py-3 hover:bg-base-200 ml-1 border-l-4 {($page.url.pathname + $page.url.search).includes(item.slug) ? 'bg-base-200 border-l-accent' : 'border-l-transparent'}">
+						<a href="/dashboard/r/{data.feedSlug}/{item.slug}" class="block border-b border-base-200 px-4 py-3 hover:bg-base-200 ml-1 border-l-4 {($page.url.pathname + $page.url.search).includes(item.slug) ? 'bg-base-200 border-l-accent' : 'border-l-transparent'} {item.isRead ? 'opacity-50' : ''}">
 							<div class="flex items-start justify-between gap-2">
-								<h3 class="text-sm font-medium {item.isRead ? 'text-base-content/50' : ''}">
+								<h3 class="text-sm font-medium">
 									{item.title || 'Untitled'}
 								</h3>
 								<div class="flex shrink-0 gap-1">

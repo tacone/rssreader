@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { afterNavigate, invalidateAll } from '$app/navigation';
 
 	let { data, children } = $props();
+
+	afterNavigate(() => {
+		invalidateAll();
+	});
 </script>
 
 <div class="grid overflow-hidden" style="grid-template-columns: 1fr 2fr;">

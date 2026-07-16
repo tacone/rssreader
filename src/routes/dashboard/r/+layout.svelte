@@ -4,7 +4,6 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 
 	interface Feed {
@@ -24,11 +23,6 @@
 		theme = theme === 'light' ? 'dark' : 'light';
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('theme', theme);
-	}
-
-	function handleEnhance() {
-		invalidateAll();
-		return () => {};
 	}
 </script>
 

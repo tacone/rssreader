@@ -2,7 +2,6 @@
 	import { SITE_NAME } from '$lib/config';
 	import FeedIcon from '$lib/components/FeedIcon.svelte';
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 
 	interface Feed {
 		id: string; slug: string; url: string; title: string | null;
@@ -16,11 +15,6 @@
 	} = $props();
 
 	let urlInput = $state('');
-
-	function handleEnhance() {
-		invalidateAll();
-		return () => {};
-	}
 </script>
 
 <svelte:head><title>Manage Feeds — {SITE_NAME}</title></svelte:head>

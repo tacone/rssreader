@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 	import RssEmbedHandler from '$lib/components/RssEmbedHandler.svelte';
 	import { brokenImage } from '$lib/actions/brokenImage';
 	import { expandStandaloneImages } from '$lib/actions/expandStandaloneImages';
@@ -21,20 +20,13 @@
 			}
 		});
 	});
-
-	function handleEnhance() {
-		invalidateAll();
-		return () => {};
-	}
 </script>
-
-<RssEmbedHandler />
 
 <article class="flex flex-col gap-4 p-6">
 	<div class="flex items-start justify-between gap-3">
 		<h2 class="text-xl font-bold">{data.item.title || 'Untitled'}</h2>
 		<div class="flex shrink-0 gap-1">
-			<form method="POST" action="?/toggleStar" use:enhance={handleEnhance} class="inline">
+			<form method="POST" action="?/toggleStar" use:enhance class="inline">
 				<input type="hidden" name="itemId" value={data.item.id} />
 				<input type="hidden" name="isStarred" value={String(!data.item.isStarred)} />
 				<button type="submit" class="btn btn-ghost btn-sm">
@@ -50,7 +42,7 @@
 		<a href={data.item.url} class="link link-hover" target="_blank">Open original</a>
 	</div>
 
-	<form method="POST" action="?/toggleRead" use:enhance={handleEnhance}>
+	<form method="POST" action="?/toggleRead" use:enhance>
 		<input type="hidden" name="itemId" value={data.item.id} />
 		<input type="hidden" name="isRead" value={String(!data.item.isRead)} />
 		<button type="submit" class="btn btn-outline btn-xs">

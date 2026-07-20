@@ -209,7 +209,27 @@ async function fetchPageContent(db: DB, feedId: string, items: FetchResult['item
 				continue;
 			}
 
-			const html = await response.text();
+			const contentType = response.headers.get('content-type') || '';
+			if (!contentType.startsWith('text/html')) {
+				log(`not html (${contentType})`);
+				await db
+					.update(itemsTable)
+					.set({ rawPageError: -2, notRenderable: 1 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+				continue;
+			}
+
+			const contentLength = response.headers.get('content-length');
+			if (contentLength && Number(contentLength) > 524_288) {
+				log(`too large (${Number(contentLength).toLocaleString()} bytes)`);
+				await db
+					.update(itemsTable)
+					.set({ rawPageError: -3, notRenderable: 1 })
+					.where(and(eq(itemsTable.feedId, feedId), eq(itemsTable.guid, item.guid)));
+				continue;
+			}
+
+			const html = (await response.text()).replace(/\0/g, '');
 			const { content, notRenderable } = extractFromPage(html, item.url);
 
 			if (notRenderable) {
@@ -237,7 +257,7 @@ async function fetchPageContent(db: DB, feedId: string, items: FetchResult['item
 			}
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
-			log(`network error: ${msg}`);
+			log(`network error: ${msg.slice(0, 500)}`);
 			await db
 				.update(itemsTable)
 				.set({ rawPageError: -1, notRenderable: 1 })

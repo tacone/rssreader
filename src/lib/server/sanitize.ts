@@ -518,7 +518,6 @@ export async function sanitizeHtml(html: string, baseUrl?: string): Promise<stri
 	if (!MINIFY_HTML) return sanitized;
 
 	const minified = await minify(sanitized, MINIFY_OPTIONS);
-	console.log(`minified from ${sanitized.length} to ${minified.length} [${(100 * minified.length / sanitized.length).toFixed(2)}]`)
 
 	return minified;
 }

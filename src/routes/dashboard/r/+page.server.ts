@@ -6,6 +6,7 @@ import { fetchFeed } from '$lib/server/feed/fetch';
 import { upsertFeed } from '$lib/server/feed/store';
 import { auth } from '$lib/server/auth';
 import { addFeed as addFeedAction, deleteFeed as deleteFeedAction, refreshAll as refreshAllAction } from '$lib/server/feed/actions';
+import { discoverAndSubscribe } from '$lib/server/feed/discover';
 import { and, eq } from 'drizzle-orm';
 
 export const actions: Actions = {
@@ -17,7 +18,21 @@ export const actions: Actions = {
 	addFeed: async ({ locals, request }) => {
 		if (!locals.user) return { status: 401 };
 		const data = await request.formData();
-		return addFeedAction(locals.user.id, (data.get('url') as string)?.trim());
+		const url = (data.get('url') as string)?.trim();
+		if (!url) return fail(400, { error: 'URL is required' });
+
+		const feedResult = await addFeedAction(locals.user.id, url);
+
+		if ('success' in feedResult) return feedResult;
+
+		const err = feedResult as { data?: { message?: string } };
+		const msg = err.data?.message;
+		if (msg === 'No feed found at this URL' || msg === 'Unrecognized feed format') {
+			const discResult = await discoverAndSubscribe(locals.user.id, url);
+			return { ...discResult, _action: 'addOrDiscover' };
+		}
+
+		return feedResult;
 	},
 
 	refreshFeed: async ({ locals, request }) => {
@@ -56,5 +71,14 @@ export const actions: Actions = {
 	refreshAll: async ({ locals }) => {
 		if (!locals.user) return { status: 401 };
 		return refreshAllAction(locals.user.id);
+	},
+
+	subscribeFromDiscover: async ({ locals, request }) => {
+		if (!locals.user) return { status: 401 };
+		const data = await request.formData();
+		const feedUrl = data.get('feedUrl') as string;
+		if (!feedUrl) return fail(400, { discoverError: 'Feed URL is required' });
+		const result = await addFeedAction(locals.user.id, feedUrl);
+		return { ...result, _action: 'subscribeFromDiscover' };
 	}
 };

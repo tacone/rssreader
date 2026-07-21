@@ -12,6 +12,11 @@ Existing readers are either too simple or too complex/confusing. Most problems
 stem from the commercial nature of existing software (bloat, tracking,
 algorithmic feeds). No existing reader has ever clicked.
 
+**Reference implementations** are cloned at `~/Code/reference/rss/` — a resource
+for studying how mature projects solve DB schema, feed parsing, full-text
+extraction, CLI architecture, API design, and mobile sync. See
+`output/research-similar-solutions.md` for the full list.
+
 ### 1.2 What Google Reader Got Right
 
 - **Linear feed** — chronological, no algorithm. Infinite scroll is nice-to-have

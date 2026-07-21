@@ -38,6 +38,25 @@
 - Feedbin ($5/mo): newsletter-to-RSS bridge
 - Readwise Reader ($10/mo): RSS + read-later + highlights
 
+## Reference Implementations
+
+Local clones of the most established open-source RSS readers live at
+`~/Code/reference/rss/`. This directory is a resource for studying how other
+projects solve the same problems — DB schema design, feed parsing, full-text
+extraction, caching, CLI architecture, API design, mobile sync, etc.
+
+| Repo | Language | Size | Highlights |
+|---|---|---|---|
+| `miniflux/` | Go | 7.6M | Minimalist, single-binary, intentional simplicity. Closest philosophical fit. Built-in readability, Fever/Reader API, privacy-first (tracking strip, media proxy). |
+| `freshrss/` | PHP | 19M | Most popular self-hosted reader. Feature-rich (extensions, themes, filters). Flexible DB (SQLite/MySQL/PgSQL). |
+| `tt-rss/` | PHP | 41M | Oldest (2005), most feature-dense. Three-pane UI, plugin system, complex filter chains. |
+| `newsblur/` | Python | 1.2G | Social + ML features. Full-stack: Django + MongoDB + Redis + Elasticsearch + mobile apps. |
+| `commafeed/` | Java | 4.5M | Quarkus + React. Google Reader API + Fever API. Supports thousands of users. |
+| `newsboat/` | C++ | 8.7M | Terminal RSS reader (fork of Newsbeuter, ~2006). C++ with minimal deps. |
+| `rssguard/` | C++ | 337M | Qt-based desktop reader. Also does podcasts/XMPP/Gemini. |
+
+Browse any repo with `ls ~/Code/reference/rss/<name>` or open in the editor.
+
 ## Key Takeaways for Our Design
 
 - Miniflux's architecture (Go binary, Postgres, minimal UI, privacy-first) is

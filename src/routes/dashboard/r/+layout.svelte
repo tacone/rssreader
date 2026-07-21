@@ -12,6 +12,11 @@
 		icon: string | null; url: string; unread: number;
 	}
 
+	interface DiscoveredFeed {
+		url: string; format: string;
+		title?: string; siteUrl?: string;
+	}
+
 	let { data, children }: {
 		data: { feeds: Feed[] };
 		children: import('svelte').Snippet;
@@ -19,6 +24,11 @@
 
 	let urlInput = $state('');
 	let theme = $state(browser && localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+
+	let showModal = $state(false);
+	let modalFeeds = $state<DiscoveredFeed[]>([]);
+	let modalError = $state<string | null>(null);
+	let feedMsg = $state<string | null>(null);
 
 	function toggleTheme() {
 		theme = theme === 'light' ? 'dark' : 'light';
@@ -28,6 +38,49 @@
 
 	function handleRefreshAll() {
 		invalidateAll();
+	}
+
+	function handleAddFeed() {
+		return function handleAddFeedResult({ result, update }: { result: { type: string; data?: Record<string, unknown> }; update: (opts?: { reset: boolean }) => Promise<void> }) {
+			update({ reset: true });
+			if (result.type === 'success' && result.data) {
+				if (result.data.success) {
+					feedMsg = 'Feed added';
+					urlInput = '';
+					invalidateAll();
+				} else if (result.data.discovered) {
+					modalFeeds = result.data.discovered as DiscoveredFeed[];
+					showModal = true;
+					feedMsg = null;
+				} else if (result.data.error) {
+					feedMsg = result.data.error as string;
+				} else if (result.data.discoverError) {
+					feedMsg = result.data.discoverError as string;
+				}
+			} else if (result.type === 'error') {
+				feedMsg = 'Something went wrong';
+			}
+		};
+	}
+
+	function handleSubscribe() {
+		return function handleSubscribeResult({ result, update }: { result: { type: string; data?: Record<string, unknown> }; update: (opts?: { reset: boolean }) => Promise<void> }) {
+			update({ reset: true });
+			if (result.type === 'success' && result.data && (result.data.success || result.data._action)) {
+				showModal = false;
+				modalFeeds = [];
+				feedMsg = 'Feed added';
+				invalidateAll();
+			} else {
+				showModal = false;
+				modalFeeds = [];
+				feedMsg = (result.data?.message as string) || 'Failed to add feed';
+			}
+		};
+	}
+
+	function closeModal() {
+		showModal = false;
 	}
 </script>
 
@@ -56,17 +109,21 @@
 
 	<div class="grid overflow-hidden" style="grid-template-columns: 240px 1fr;">
 		<aside class="flex flex-col gap-2 overflow-y-auto border-r border-base-300 p-3">
-			<form method="POST" action="/dashboard/r?/addFeed" use:enhance class="join w-full">
+			<form method="POST" action="/dashboard/r?/addFeed" use:enhance={handleAddFeed} class="join w-full">
 				<input
 					bind:value={urlInput}
 					name="url"
-					type="url"
-					placeholder="Add feed URL"
+					type="text"
+					placeholder="Feed or website URL"
 					required
 					class="input input-bordered input-xs join-item flex-1"
 				/>
 				<button type="submit" class="btn btn-primary btn-xs join-item">+</button>
 			</form>
+
+			{#if feedMsg}
+				<p class="text-xs {feedMsg === 'Feed added' || feedMsg === 'Feed discovered and added!' ? 'text-success' : 'text-error'}">{feedMsg}</p>
+			{/if}
 
 			{#if data.feeds.length === 0}
 				<p class="text-xs text-base-content/40">No feeds yet.</p>
@@ -92,3 +149,33 @@
 		{@render children()}
 	</div>
 </div>
+
+<dialog class="modal" class:modal-open={showModal}>
+	<div class="modal-box">
+		<h3 class="font-bold text-lg mb-4">Discovered Feeds</h3>
+		{#if modalFeeds.length === 0}
+			<p class="text-base-content/60">No feeds found.</p>
+		{:else}
+			<ul class="flex flex-col gap-2">
+				{#each modalFeeds as f (f.url)}
+					<li class="flex items-center gap-2 border-b border-base-300 pb-2 last:border-0">
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-sm font-medium">{f.title || f.url}</p>
+							<p class="truncate text-xs text-base-content/60">{f.url}</p>
+						</div>
+						<form method="POST" action="/dashboard/r?/subscribeFromDiscover" use:enhance={handleSubscribe} class="inline">
+							<input type="hidden" name="feedUrl" value={f.url} />
+							<button type="submit" class="btn btn-primary btn-xs">Subscribe</button>
+						</form>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+		<div class="modal-action">
+			<button onclick={closeModal} class="btn btn-ghost btn-sm">Close</button>
+		</div>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button onclick={closeModal}>close</button>
+	</form>
+</dialog>

@@ -1,3 +1,22 @@
+## 2026-07-21 (2) — Unified add/discover with modal
+
+- feat: single URL input works for both feed URLs (add directly) and website URLs (discover feeds from HTML page)
+- feat: DaisyUI modal shows discovered feed choices when multiple feeds found
+- feat: auto-subscribe when exactly one feed is discovered at a website URL
+- refactor: removed separate "Discover" forms and `discover` action — unified into `addFeed` action with discovery fallback
+- feat: `src/lib/server/feed/discover.ts` — feedscout wrapper with SSRF protection, DNS-based private IP blocking, 15s timeout
+- feat: `subscribeFromDiscover` action — one-click subscribe from modal
+- fix: catch both "No feed found at this URL" and "Unrecognized feed format" errors to trigger discovery fallback (`parseFeed` throws on HTML pages)
+- feat: deduplicate discovered feeds by normalized URL (strip trailing slash, keep first occurrence)
+- feat: sort discovered feeds by URL length (shortest first)
+- chore: feedscout dependency added to package.json
+
+## 2026-07-20 (1) — Reference implementations cloned
+
+- feat: cloned 7 mature open-source RSS readers to `~/Code/reference/rss/` for studying existing approaches
+- docs: added "Reference Implementations" section to `output/research-similar-solutions.md`
+- docs: referenced `~/Code/reference/rss/` in `feature.md` §1.1
+
 ## 2026-07-14 (4) — Project renamed to "Read RSS"
 
 - feat: project renamed from "RSS Reader" to "Read RSS"

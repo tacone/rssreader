@@ -97,6 +97,7 @@ export const folders = pgTable(
 			.references(() => users.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
 		parentId: text('parent_id'),
+		sortOrder: integer('sort_order').notNull().default(0),
 		createdAt: timestamp('created_at').defaultNow().notNull()
 	},
 	(table) => [
@@ -127,7 +128,8 @@ export const feedFolders = pgTable(
 			.references(() => folders.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
-		pk: primaryKey({ columns: [table.feedId, table.folderId] })
+		pk: primaryKey({ columns: [table.feedId, table.folderId] }),
+		feedIdx: uniqueIndex('feed_folders_feed_id_idx').on(table.feedId)
 	})
 );
 

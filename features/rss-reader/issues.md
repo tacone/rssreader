@@ -16,7 +16,7 @@
 - ~~#15 - reset item-pane vertical scrolling on item display~~
 - ~~#16 - current selected item row less subtle (add ~4px left margin, border-l-accent if selected, border-l-transparent otherwise)~~
 - #17 - feed discovery given the blog url (would open a choose modal if there's more than one)
-- #18 - star button sometimes doesn't seem to be working first try, also sometimes doesn't seem to sync state with the rest of the page
+- ~~#18 - star button sometimes doesn't seem to be working first try, also sometimes doesn't seem to sync state with the rest of the page~~
 - ~~#19 - syntax highlight code blocks~~
 - #20 - do not rewrite hash links as absolute links (what do to?)
 - ~~#21 - restrict auto-detection to common + svelte languages (was: "remove highlight.js support for exotic languages")~~

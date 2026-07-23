@@ -1,4 +1,27 @@
-## 2026-07-21 (2) — Unified add/discover with modal
+## 2026-07-23 (2) — Folder tree sidebar with virtual nodes, kebab, DnD
+
+Workstation: xoxo | Workspace: rssreader → see <summaries/001-folder-tree-sidebar.md>
+
+Flat feed list replaced with folder tree navigation. Added schema columns, local state store, kebab menus for folders and feeds, drag-and-drop reorder, and DaisyUI modals for CRUD operations.
+
+- feat: new `folders.sort_order` column (integer, default 0) for manual folder ordering
+- feat: unique index `feed_folders_feed_id_idx` on `feed_folders.feed_id` — enforces one folder per feed
+- feat: `src/lib/stores/folderState.svelte.ts` — localStorage folder expand/collapse with Zod validation
+- feat: `+layout.server.ts` returns `folders[]`, `uncategorizedFeeds[]`, `totalUnread`, `starredCount`
+- feat: sidebar virtual nodes — "All Items" (total unread badge) and "Starred" (starred count badge)
+- feat: folder tree with DaisyUI `<details>` collapse, localStorage-persisted state
+- feat: folder kebab menus — Rename, Delete (feeds → Uncategorized), Move up/down
+- feat: feed kebab — "Move to folder" modal with folder picker
+- feat: drag-and-drop folder reorder with server-side persistence
+- feat: Uncategorized `<details>` section for orphaned feeds
+- feat: modals for Create Folder, Rename Folder, Move Feed (DaisyUI `<dialog>`)
+- feat: `+page.server.ts` — 6 new folder actions: createFolder, renameFolder, deleteFolder, moveFolder, reorderFolders, assignFeedToFolder
+- fix: kebab menu no longer overlaps collapse arrow — replaced DaisyUI `collapse-arrow` with manual chevron icon on the left
+- fix: "All Items" icon replaced with proper bullet-list SVG
+- feat: `reorderFolders` server action accepts comma-separated `folderIds` string
+- feat: `plan-folder-tree.md` implementation plan written
+
+## 2026-07-21 — Unified add/discover with modal
 
 - feat: single URL input works for both feed URLs (add directly) and website URLs (discover feeds from HTML page)
 - feat: DaisyUI modal shows discovered feed choices when multiple feeds found
